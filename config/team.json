@@ -1,0 +1,6 @@
+[
+  { "id": "designer-a", "name": "Designer A", "skills": ["Arte", "Social Media", "Material Impresso", "Banner Site"], "capacity": 15, "open_base": 8 },
+  { "id": "designer-b", "name": "Designer B", "skills": ["Arte", "Social Media", "Banner Site", "Landing Page", "E-mail", "Push"], "capacity": 15, "open_base": 12 },
+  { "id": "videomaker", "name": "Videomaker", "skills": ["Vídeo", "Fotografia"], "capacity": 8, "open_base": 3 },
+  { "id": "analista", "name": "Analista de Marketing", "skills": ["Campanha", "Evento", "Comunicação Interna", "Atualização de Site", "Relatório", "Análise", "Orçamento", "Outro", "Push", "E-mail"], "capacity": 12, "open_base": 6 }
+]

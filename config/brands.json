@@ -1,0 +1,26 @@
+{
+  "construja": {
+    "name": "Construjá",
+    "audience": "Lojistas",
+    "tone": "Comercial, objetiva e direcionada à reposição/abastecimento",
+    "mandatory_cta": "Peça pelo app, site ou com seu representante."
+  },
+  "ferja": {
+    "name": "Ferjá",
+    "audience": "Consumidor final",
+    "tone": "Produto, benefício, uso e disponibilidade",
+    "mandatory_cta": "Encontre Ferjá nas melhores lojas do seu bairro."
+  },
+  "construdigi": {
+    "name": "Construdigi",
+    "audience": "Lojistas",
+    "tone": "Digital, comercial e orientada à compra",
+    "mandatory_cta": null
+  },
+  "grupoja": {
+    "name": "Grupo Já",
+    "audience": "Colaboradores",
+    "tone": "Institucional e próxima",
+    "mandatory_cta": null
+  }
+}

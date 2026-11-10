@@ -1,0 +1,35 @@
+{
+  "universal_required": ["requester", "brand", "objective", "audience", "message_tone", "deadline"],
+  "classification_threshold": 0.7,
+  "types": {
+    "Arte":                { "required": ["channel", "format"], "promo_required": ["product", "price", "validity"], "impact": 60 },
+    "Vídeo":               { "required": ["duration", "format", "concept", "location", "participants", "shoot_date"], "impact": 65 },
+    "Fotografia":          { "required": ["location", "shoot_date"], "impact": 50 },
+    "Social Media":        { "required": ["channel", "format"], "promo_required": ["product", "price", "validity"], "impact": 60 },
+    "Push":                { "required": ["headline"], "impact": 55 },
+    "E-mail":              { "required": ["headline"], "impact": 55 },
+    "Banner Site":         { "required": ["headline", "landing_page", "link", "dimensions", "publish_period"], "impact": 70 },
+    "Landing Page":        { "required": ["headline", "link"], "impact": 70 },
+    "Evento":              { "required": ["event_name", "event_date", "event_time", "location", "participants_count", "budget", "deliverables"], "impact": 85 },
+    "Material Impresso":   { "required": ["size", "quantity", "material", "finishing"], "impact": 55 },
+    "Comunicação Interna": { "required": ["channel"], "impact": 45 },
+    "Campanha":            { "required": ["channel", "validity"], "impact": 80 },
+    "Atualização de Site": { "required": ["link"], "impact": 40 },
+    "Relatório":           { "required": [], "impact": 35 },
+    "Análise":             { "required": [], "impact": 35 },
+    "Orçamento":           { "required": [], "impact": 40 },
+    "Outro":               { "required": [], "impact": 40 }
+  },
+  "formats": {
+    "instagram|feed": "1080 × 1350 px",
+    "instagram|stories": "1080 × 1920 px",
+    "instagram|reels": "1080 × 1920 px",
+    "instagram|carrossel": "1080 × 1350 px",
+    "facebook|feed": "1080 × 1350 px",
+    "whatsapp|status": "1080 × 1920 px",
+    "linkedin|feed": "1200 × 1500 px"
+  },
+  "format_implies_channel": { "feed": "Instagram", "stories": "Instagram", "reels": "Instagram", "carrossel": "Instagram" },
+  "suppliers": ["Krona", "Tigre", "Amanco", "Vonder", "Tramontina", "Eternit", "Quartzolit", "Suvinil", "Docol", "Pado"],
+  "approver_default": "Gestor de Marketing"
+}

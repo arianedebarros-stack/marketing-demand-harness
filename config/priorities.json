@@ -1,0 +1,19 @@
+{
+  "weights": { "urgency": 0.40, "impact": 0.30, "dependencies": 0.15, "risk": 0.15 },
+  "bands": [
+    { "level": "Crítica", "min": 90 },
+    { "level": "Alta", "min": 70 },
+    { "level": "Normal", "min": 40 },
+    { "level": "Baixa", "min": 0 }
+  ],
+  "urgency_by_hours": [
+    { "max_hours": 24, "score": 100 },
+    { "max_hours": 48, "score": 90 },
+    { "max_hours": 120, "score": 60 },
+    { "max_hours": 240, "score": 35 },
+    { "max_hours": null, "score": 15 }
+  ],
+  "urgency_without_deadline": 20,
+  "dependency_scores": [0, 40, 70, 90],
+  "deadline_hour": 18
+}
