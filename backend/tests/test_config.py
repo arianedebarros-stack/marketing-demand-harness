@@ -47,6 +47,9 @@ def test_loads_all_real_configs() -> None:
     assert config.task_types.formats["instagram|feed"] == "1080 × 1350 px"
     assert "Krona" in config.task_types.suppliers
     assert config.task_types.approver_default == "Gestor de Marketing"
+    assert config.task_types.rules.type_implies_channel == {"Push": "App", "E-mail": "E-mail"}
+    assert "Banner Site" in config.task_types.rules.cta_types
+    assert config.task_types.rules.supplier_promo_types == ["Arte", "Social Media"]
 
     assert [m.id for m in config.team] == ["designer-a", "designer-b", "videomaker", "analista"]
     assert config.team[0].capacity == 15
@@ -133,6 +136,26 @@ def test_unknown_key_is_rejected(config_copy: Path) -> None:
             "task_types.json",
             lambda d: d["types"].pop("Outro"),
             "Outro",
+        ),
+        (
+            "task_types.json",
+            lambda d: d["rules"]["cta_types"].append("Mágica"),
+            "Mágica",
+        ),
+        (
+            "task_types.json",
+            lambda d: d["rules"]["type_implies_channel"].update({"Mágica": "App"}),
+            "Mágica",
+        ),
+        (
+            "task_types.json",
+            lambda d: d["rules"]["supplier_promo_types"].append("Mágica"),
+            "Mágica",
+        ),
+        (
+            "task_types.json",
+            lambda d: d["rules"]["promo_supplier_files"].append("Logo {marca}"),
+            "{marca}",
         ),
         (
             "team.json",

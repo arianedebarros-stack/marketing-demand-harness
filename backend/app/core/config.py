@@ -118,6 +118,27 @@ class TaskTypeRule(_Strict):
     impact: int = Field(ge=0, le=100)
 
 
+class TypeRulesConfig(_Strict):
+    """Parâmetros do Rule Engine (§8.3, D28). Tipos referenciados precisam existir em ``types``."""
+
+    type_implies_channel: dict[str, str]
+    cta_types: list[str]
+    supplier_promo_types: list[str]
+    promo_supplier_files: list[str]
+
+    @field_validator("promo_supplier_files")
+    @classmethod
+    def _templates_use_only_supplier(cls, templates: list[str]) -> list[str]:
+        for template in templates:
+            try:
+                template.format(supplier="")
+            except (KeyError, IndexError, ValueError) as exc:
+                raise ValueError(
+                    f"modelo {template!r} inválido: só é aceito o marcador {{supplier}}"
+                ) from exc
+        return templates
+
+
 class TaskTypesConfig(_Strict):
     universal_required: list[str]
     classification_threshold: float = Field(ge=0, le=1)
@@ -126,11 +147,26 @@ class TaskTypesConfig(_Strict):
     format_implies_channel: dict[str, str]
     suppliers: list[str]
     approver_default: str = Field(min_length=1)
+    rules: TypeRulesConfig
 
     @model_validator(mode="after")
     def _has_fallback_type(self) -> Self:
         if "Outro" not in self.types:
             raise ValueError('types precisa conter "Outro" (destino de tipos desconhecidos)')
+        return self
+
+    @model_validator(mode="after")
+    def _rules_reference_known_types(self) -> Self:
+        rules = self.rules
+        referenced = {
+            "rules.type_implies_channel": list(rules.type_implies_channel),
+            "rules.cta_types": rules.cta_types,
+            "rules.supplier_promo_types": rules.supplier_promo_types,
+        }
+        for field, names in referenced.items():
+            unknown = [name for name in names if name not in self.types]
+            if unknown:
+                raise ValueError(f"{field} com tipos inexistentes: {', '.join(unknown)}")
         return self
 
 

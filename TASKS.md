@@ -13,7 +13,7 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 
 - [x] **T05 · FakeLLMClient** — `llm/base.py` (interface) + `llm/fake_client.py` (§12). *Aceite:* casos 01–04 da §17 retornam a interpretação esperada.
 - [x] **T06 · Guardrails** — `engines/guardrails.py` (§8.2). *Aceite:* `test_guardrails.py` cobre preço, produto, data, marca inexistente, campo do gestor (AC03).
-- [ ] **T07 · Rule Engine** — `engines/rules.py` (§8.3). *Aceite:* `test_rules.py`, incluindo Ferjá sem CTA Construjá (AC07).
+- [x] **T07 · Rule Engine** — `engines/rules.py` (§8.3). *Aceite:* `test_rules.py`, incluindo Ferjá sem CTA Construjá (AC07).
 - [ ] **T08 · Validator + Briefing Score** — `engines/validator.py` e `engines/score.py` (§8.4). *Aceite:* AC04, AC05, AC08.
 - [ ] **T09 · Título e briefing final** — `engines/briefing.py` (§8.9). *Aceite:* AC12.
 - [ ] **T10 · Pipeline** — `services/pipeline.py` orquestra interpretação → guardrails → merge → regras → validação → estado, com memória da demanda. *Aceite:* AC06 e caso 01; teste de que `task_type` definido pelo gestor (`field_origin = manager`) ou confirmado (`type_confirmed = true`) não é sobrescrito pela classificação do LLM (D27).

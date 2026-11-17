@@ -170,7 +170,7 @@ A proteção do `task_type` definido pelo gestor ou confirmado (`type_confirmed`
 
 ### 8.3 Rule Engine (`engines/rules.py`)
 
-Lê `config/`. Ordem:
+Lê `config/` (parâmetros das regras em `task_types.json`, chave `rules`). Campos com `field_origin = manager` nunca são alterados; critérios de sobrescrita em D28. Ordem:
 1. `format` sem `channel` → canal de `format_implies_channel` (origin `rule`).
 2. `Push` → `channel = "App"`; `E-mail` → `channel = "E-mail"`.
 3. Marca conhecida → `audience` e `message_tone` da marca, se vazios ou já `rule`.

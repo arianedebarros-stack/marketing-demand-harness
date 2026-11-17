@@ -31,5 +31,11 @@
   },
   "format_implies_channel": { "feed": "Instagram", "stories": "Instagram", "reels": "Instagram", "carrossel": "Instagram" },
   "suppliers": ["Krona", "Tigre", "Amanco", "Vonder", "Tramontina", "Eternit", "Quartzolit", "Suvinil", "Docol", "Pado"],
-  "approver_default": "Gestor de Marketing"
+  "approver_default": "Gestor de Marketing",
+  "rules": {
+    "type_implies_channel": { "Push": "App", "E-mail": "E-mail" },
+    "cta_types": ["Arte", "Social Media", "Campanha", "Banner Site"],
+    "supplier_promo_types": ["Arte", "Social Media"],
+    "promo_supplier_files": ["Logo {supplier}", "Imagens dos produtos"]
+  }
 }
