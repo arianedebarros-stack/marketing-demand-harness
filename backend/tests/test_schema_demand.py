@@ -11,6 +11,7 @@ from app.schemas.demand import (
     Dependency,
     FieldOrigin,
     RequestStatus,
+    RequiredFile,
     normalize_dimensions,
 )
 
@@ -146,3 +147,21 @@ def test_dependency_defaults_to_pending() -> None:
 def test_unknown_field_is_rejected() -> None:
     with pytest.raises(ValidationError):
         _demand(cor_favorita="azul")
+
+
+def test_required_file_keeps_origin() -> None:
+    demand = _demand(required_files=[{"name": "Logo Krona", "origin": "rule"}])
+
+    assert demand.required_files == [RequiredFile(name="Logo Krona", origin=FieldOrigin.RULE)]
+    assert demand.model_dump(mode="json")["required_files"] == [
+        {"name": "Logo Krona", "origin": "rule"}
+    ]
+
+
+@pytest.mark.parametrize(
+    "item",
+    [{"name": "", "origin": "rule"}, {"name": "Logo", "origin": "chute"}, "Logo Krona"],
+)
+def test_required_file_rejects_invalid_items(item: object) -> None:
+    with pytest.raises(ValidationError):
+        _demand(required_files=[item])

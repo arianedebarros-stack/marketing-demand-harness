@@ -6,7 +6,7 @@ import pytest
 
 from app.core.config import AppConfig, load_app_config
 from app.engines.rules import RuleChange, apply_rules
-from app.schemas.demand import Demand, FieldOrigin
+from app.schemas.demand import Demand, FieldOrigin, RequiredFile
 
 CONFIG: AppConfig = load_app_config()
 BRANDS = CONFIG.brands
@@ -315,18 +315,94 @@ def test_manager_promotional_flag_is_kept() -> None:
     assert result.demand.required_files == []
 
 
+def _files(demand: Demand) -> list[tuple[str, FieldOrigin]]:
+    return [(f.name, f.origin) for f in demand.required_files]
+
+
 def test_promotional_with_supplier_requires_files() -> None:
     demand = _demand(task_type="Arte", supplier="Krona")
-    demand.required_files = ["Planilha de preços"]
+    demand.required_files = [RequiredFile(name="Planilha de preços", origin=L)]
 
-    out = apply_rules(demand, config=CONFIG).demand
+    result = apply_rules(demand, config=CONFIG)
 
-    assert out.required_files == ["Planilha de preços", "Logo Krona", "Imagens dos produtos"]
+    assert _files(result.demand) == [
+        ("Planilha de preços", L),
+        ("Logo Krona", R),
+        ("Imagens dos produtos", R),
+    ]
+    assert _changed(result.changes)["required_files"] == "promo_supplier_files"
 
 
 def test_promotional_without_supplier_requires_no_files() -> None:
     demand = _demand(task_type="Arte", is_promotional=True)
     assert apply_rules(demand, config=CONFIG).demand.required_files == []
+
+
+def test_supplier_change_recalculates_rule_files() -> None:
+    """D28: arquivos de regra são recalculados; o logo do fornecedor anterior sai."""
+    demand = _demand(task_type="Arte", supplier="Tigre")
+    demand.required_files = [
+        RequiredFile(name="Logo Krona", origin=R),
+        RequiredFile(name="Planilha de preços", origin=M),
+        RequiredFile(name="Imagens dos produtos", origin=R),
+    ]
+
+    out = apply_rules(demand, config=CONFIG).demand
+
+    assert _files(out) == [
+        ("Planilha de preços", M),
+        ("Imagens dos produtos", R),
+        ("Logo Tigre", R),
+    ]
+
+
+def test_rule_files_removed_when_no_longer_promotional() -> None:
+    demand = _demand(task_type="Vídeo")
+    demand.required_files = [
+        RequiredFile(name="Logo Krona", origin=R),
+        RequiredFile(name="Imagens dos produtos", origin=R),
+        RequiredFile(name="Roteiro", origin=L),
+    ]
+
+    result = apply_rules(demand, config=CONFIG)
+
+    assert _files(result.demand) == [("Roteiro", L)]
+    assert _changed(result.changes)["required_files"] == "rule_no_longer_applies"
+
+
+@pytest.mark.parametrize("origin", [M, L, G])
+def test_non_rule_files_are_never_removed(origin: FieldOrigin) -> None:
+    """Itens de message, llm e manager ficam, mesmo sem promoção."""
+    demand = _demand(task_type="Vídeo")
+    demand.required_files = [RequiredFile(name="Logo Krona", origin=origin)]
+
+    result = apply_rules(demand, config=CONFIG)
+
+    assert _files(result.demand) == [("Logo Krona", origin)]
+    assert result.changes == []
+
+
+def test_rule_file_not_duplicated_when_already_listed() -> None:
+    """Se o solicitante já listou o arquivo, ele fica com a origem dele e a regra não duplica."""
+    demand = _demand(task_type="Arte", supplier="Krona")
+    demand.required_files = [RequiredFile(name="logo krona", origin=M)]
+
+    out = apply_rules(demand, config=CONFIG).demand
+
+    assert _files(out) == [("logo krona", M), ("Imagens dos produtos", R)]
+
+
+def test_required_files_audit_payload_is_json() -> None:
+    result = apply_rules(_demand(task_type="Arte", supplier="Krona"), config=CONFIG)
+    change = next(c for c in result.changes if c.field == "required_files")
+
+    assert change.audit_payload()["new_value"] == {
+        "rule": "promo_supplier_files",
+        "value": [
+            {"name": "Logo Krona", "origin": "rule"},
+            {"name": "Imagens dos produtos", "origin": "rule"},
+        ],
+    }
 
 
 # --- Propriedades gerais -------------------------------------------------------------------

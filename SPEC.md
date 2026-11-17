@@ -100,7 +100,7 @@ marketing-demand-harness/
   "assigned_to": "employee_id|null", "assignment_locked": false,
   "approver": "string|null",
   "dependencies": [{ "dependency": "string", "owner": "string", "status": "Pendente|Resolvida" }],
-  "required_files": ["string"],
+  "required_files": [{ "name": "string", "origin": "message|llm|rule|harness|manager|requester" }],
   "missing_information": ["field_key"],
   "is_promotional": false,
   "briefing_score": 0,
@@ -176,7 +176,7 @@ Lê `config/` (parâmetros das regras em `task_types.json`, chave `rules`). Camp
 3. Marca conhecida → `audience` e `message_tone` da marca, se vazios ou já `rule`.
 4. CTA: `mandatory_cta` da marca quando promocional ou tipo ∈ {Arte, Social Media, Campanha, Banner Site}. Marca sem CTA → `null`. **Nunca** aplicar CTA de outra marca.
 5. `channel|format` em `formats` e `dimensions` vazio → preenche.
-6. Promocional com fornecedor → `required_files += ["Logo <fornecedor>", "Imagens dos produtos"]`.
+6. Promocional com fornecedor → `required_files += ["Logo <fornecedor>", "Imagens dos produtos"]` (origin `rule`). Itens de regra são recalculados a cada execução; itens de outra origem são mantidos (D28).
 
 `is_promotional = llm.is_promotional OR (supplier AND task_type ∈ {Arte, Social Media})`.
 

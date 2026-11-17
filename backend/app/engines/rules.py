@@ -9,6 +9,8 @@ Critério de sobrescrita (D28):
   vieram de regra. Um valor de regra que deixou de valer é apagado.
 - O CTA obrigatório da marca substitui valores de ``llm`` e ``message``. Um CTA igual ao de outra
   marca é sempre removido.
+- ``required_files`` guarda a origem de cada item: os itens de regra são recalculados a cada
+  execução; os de ``message``, ``llm`` e ``manager`` são mantidos.
 """
 
 from __future__ import annotations
@@ -16,9 +18,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic_core import to_jsonable_python
+
 from app.core.config import AppConfig, Brand
 from app.core.text import normalize
-from app.schemas.demand import Demand, FieldOrigin
+from app.schemas.demand import Demand, FieldOrigin, RequiredFile
 
 RULE = FieldOrigin.RULE
 MANAGER = FieldOrigin.MANAGER
@@ -36,8 +40,8 @@ class RuleChange:
     def audit_payload(self) -> dict[str, Any]:
         return {
             "action": "rule_applied",
-            "previous_value": {"field": self.field, "value": self.previous},
-            "new_value": {"rule": self.rule, "value": self.value},
+            "previous_value": {"field": self.field, "value": to_jsonable_python(self.previous)},
+            "new_value": {"rule": self.rule, "value": to_jsonable_python(self.value)},
         }
 
 
@@ -79,20 +83,14 @@ def apply_rules(demand: Demand, *, config: AppConfig) -> RuleResult:
     )
     work.derive("dimensions", dimensions, "format_dimensions")
 
-    # 6. Arquivos obrigatórios de promoção com fornecedor.
-    if promotional and demand.supplier:
-        files = list(demand.required_files)
-        for template in rules.promo_supplier_files:
-            file = template.format(supplier=demand.supplier)
-            if file not in files:
-                files.append(file)
-        if files != demand.required_files:
-            work.set(
-                "required_files",
-                files,
-                "promo_supplier_files",
-                origin=work.origin("required_files"),
-            )
+    # 6. Arquivos obrigatórios de promoção com fornecedor (itens de regra recalculados).
+    supplier = demand.supplier
+    wanted = (
+        [template.format(supplier=supplier) for template in rules.promo_supplier_files]
+        if promotional and supplier
+        else []
+    )
+    _apply_required_files(work, demand.required_files, wanted)
 
     return RuleResult(demand=work.build(), changes=work.changes)
 
@@ -112,6 +110,33 @@ def _apply_promotional(work: _Work, demand: Demand, supplier_types: list[str]) -
         else:
             work.set("is_promotional", False, "rule_no_longer_applies", origin=None)
     return promotional
+
+
+def _apply_required_files(work: _Work, current: list[RequiredFile], wanted: list[str]) -> None:
+    """Mantém itens de message/llm/manager; itens de regra passam a ser exatamente ``wanted``.
+
+    Um arquivo que já está na lista com outra origem não é duplicado (comparação sem acento e
+    sem caixa) e fica com a origem que já tinha.
+    """
+    wanted_keys = {normalize(name).strip() for name in wanted}
+    files: list[RequiredFile] = []
+    seen: set[str] = set()
+    for item in current:
+        key = normalize(item.name).strip()
+        if key in seen or (item.origin is RULE and key not in wanted_keys):
+            continue
+        files.append(item)
+        seen.add(key)
+    for name in wanted:
+        key = normalize(name).strip()
+        if key not in seen:
+            files.append(RequiredFile(name=name, origin=RULE))
+            seen.add(key)
+    if files == current:
+        return
+    added = any(f.origin is RULE and f not in current for f in files)
+    rule = "promo_supplier_files" if added else "rule_no_longer_applies"
+    work.set("required_files", files, rule, origin=work.origin("required_files"))
 
 
 def _apply_cta(work: _Work, brand: Brand | None, desired: str | None, config: AppConfig) -> None:

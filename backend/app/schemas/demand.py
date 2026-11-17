@@ -61,6 +61,15 @@ class Dependency(BaseModel):
     status: DependencyStatus = "Pendente"
 
 
+class RequiredFile(BaseModel):
+    """Arquivo obrigatório com a origem do item (D28): itens de regra são recalculados."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1)
+    origin: FieldOrigin
+
+
 class ContentFields(BaseModel):
     """Campos de conteúdo do briefing: os que podem vir da mensagem (via LLM) ou do gestor."""
 
@@ -127,7 +136,7 @@ class Demand(ContentFields):
     approver: str | None = None
 
     dependencies: list[Dependency] = Field(default_factory=list)
-    required_files: list[str] = Field(default_factory=list)
+    required_files: list[RequiredFile] = Field(default_factory=list)
     missing_information: list[str] = Field(default_factory=list)
     is_promotional: bool = False
     published_error: bool = False  # D24: necessário para recalcular prioridade (§8.5)
