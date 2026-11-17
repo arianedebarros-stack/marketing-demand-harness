@@ -2,7 +2,7 @@
 
 > Especificação para implementação por agente de código (Claude Code, Devin, Cursor).
 > Fonte da verdade do **o quê**. O **como trabalhar** está em `CLAUDE.md`; a **ordem** está em `TASKS.md`.
-> Versão 1.1 · 2026-10-19
+> Versão 1.2 · 2026-11-16 (5º arquivo de config: `guardrails.json`, ver `docs/decisions.md` D27)
 
 ---
 
@@ -48,7 +48,7 @@ O **Marketing Demand Harness** recebe o pedido em linguagem natural e o transfor
 marketing-demand-harness/
 ├── SPEC.md  CLAUDE.md  TASKS.md  README.md  .env.example  docker-compose.yml  Makefile
 ├── config/                 # memória institucional (editável sem deploy de código)
-│   ├── brands.json  task_types.json  team.json  priorities.json
+│   ├── brands.json  task_types.json  team.json  priorities.json  guardrails.json
 ├── backend/
 │   ├── app/
 │   │   ├── main.py                 # FastAPI app
@@ -154,6 +154,7 @@ Regras do prompt: nunca inventar; campo ausente não aparece; datas em ISO calcu
 ### 8.2 Guardrails (`engines/guardrails.py`)
 
 Aplicados à saída do LLM **antes** do merge. Cada descarte gera audit log com o motivo.
+Parâmetros (expressões temporais, palavras de anexo, tamanho mínimo de palavra do produto) em `config/guardrails.json`.
 
 | Campo | Regra |
 |---|---|
@@ -247,7 +248,7 @@ Erros: `422` validação; `409` transição inválida ou duplicidade; `502` falh
 
 Tabelas: `users`, `requests` (id, requester, department, channel, status, demand JSONB, created_at, updated_at), `messages` (id, request_id, role, text, created_at), `tasks` (id, request_id, external_task_id, title, type, brand, supplier, campaign, assigned_to, priority, deadline, blocked, status, briefing, briefing_score, created_at), `dependencies` (id, task_id, description, owner, status), `audit_log` (id, request_id, task_id, actor[llm|harness|user|manager], action, previous_value JSONB, new_value JSONB, timestamp).
 
-Config de marcas/tipos/equipe permanece em `config/*.json` nesta entrega.
+Config de marcas/tipos/equipe/prioridade/guardrails permanece nos 5 arquivos de `config/` (`brands.json`, `task_types.json`, `team.json`, `priorities.json`, `guardrails.json`) nesta entrega.
 
 ## 11. Integração com o sistema de tarefas
 

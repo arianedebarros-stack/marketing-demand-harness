@@ -9,7 +9,7 @@ AI Agent Harness que transforma pedidos informais ao Marketing em demandas compl
 - [`SPEC.md`](SPEC.md) — especificação completa.
 - [`CLAUDE.md`](CLAUDE.md) — instruções para o agente de código.
 - [`TASKS.md`](TASKS.md) — plano de implementação e progresso.
-- [`config/`](config) — regras de marca, tipos de demanda, equipe e prioridade.
+- [`config/`](config) — regras de marca, tipos de demanda, equipe, prioridade e guardrails.
 
 ## Como rodar
 
