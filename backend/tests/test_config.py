@@ -32,7 +32,7 @@ def _rewrite(path: Path, mutate: object) -> None:
 # --- carregamento das 4 configs reais ---------------------------------------------------
 
 
-def test_loads_the_four_real_configs() -> None:
+def test_loads_all_real_configs() -> None:
     config = load_app_config(DEFAULT_CONFIG_DIR)
 
     assert isinstance(config, AppConfig)
@@ -55,6 +55,10 @@ def test_loads_the_four_real_configs() -> None:
     assert config.priorities.bands[0].level == "Crítica"
     assert config.priorities.urgency_by_hours[-1].max_hours is None
     assert config.priorities.deadline_hour == 18
+
+    assert "planilha" in config.guardrails.attachment_words
+    assert config.guardrails.product_min_word_length == 4
+    assert config.guardrails.temporal_patterns
 
 
 # --- erros claros ----------------------------------------------------------------------
@@ -134,6 +138,11 @@ def test_unknown_key_is_rejected(config_copy: Path) -> None:
             "team.json",
             lambda d: d[0]["skills"].append("Mágica"),
             "Mágica",
+        ),
+        (
+            "guardrails.json",
+            lambda d: d["temporal_patterns"].append("(sem fechar"),
+            "regex inválida",
         ),
     ],
 )

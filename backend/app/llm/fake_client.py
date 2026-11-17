@@ -8,9 +8,9 @@ Como o LLM real, só extrai; quem decide é o harness.
 from __future__ import annotations
 
 import re
-import unicodedata
 from datetime import date, timedelta
 
+from app.core.text import normalize
 from app.llm.base import InterpretationContext
 from app.schemas.demand import Dependency
 from app.schemas.llm import Classification, ExtractedFields, LLMInterpretation
@@ -84,9 +84,7 @@ _TEMPORAL_CUT_RE = re.compile(
 
 def _normalize(text: str) -> str:
     """Sem acento, minúsculas e sem o sufixo '-feira' (evita confundir com 'feira')."""
-    decomposed = unicodedata.normalize("NFKD", text)
-    plain = "".join(ch for ch in decomposed if not unicodedata.combining(ch)).lower()
-    return re.sub(r"\b(segunda|terca|quarta|quinta|sexta)[- ]feira\b", r"\1", plain)
+    return re.sub(r"\b(segunda|terca|quarta|quinta|sexta)[- ]feira\b", r"\1", normalize(text))
 
 
 def _capitalize(text: str) -> str:

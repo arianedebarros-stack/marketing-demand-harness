@@ -12,7 +12,7 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 ## Fase 1 — Etapa 1 do MVP (interpretação e briefing)
 
 - [x] **T05 · FakeLLMClient** — `llm/base.py` (interface) + `llm/fake_client.py` (§12). *Aceite:* casos 01–04 da §17 retornam a interpretação esperada.
-- [ ] **T06 · Guardrails** — `engines/guardrails.py` (§8.2). *Aceite:* `test_guardrails.py` cobre preço, produto, data, marca inexistente, campo do gestor (AC03).
+- [x] **T06 · Guardrails** — `engines/guardrails.py` (§8.2). *Aceite:* `test_guardrails.py` cobre preço, produto, data, marca inexistente, campo do gestor (AC03).
 - [ ] **T07 · Rule Engine** — `engines/rules.py` (§8.3). *Aceite:* `test_rules.py`, incluindo Ferjá sem CTA Construjá (AC07).
 - [ ] **T08 · Validator + Briefing Score** — `engines/validator.py` e `engines/score.py` (§8.4). *Aceite:* AC04, AC05, AC08.
 - [ ] **T09 · Título e briefing final** — `engines/briefing.py` (§8.9). *Aceite:* AC12.
@@ -20,7 +20,7 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 
 ## Fase 2 — Etapa 2 do MVP (triagem e aprovação)
 
-- [ ] **T11 · Priority Engine** — `engines/priority.py` (§8.5). *Aceite:* AC09 (76,5 → Alta; <24 h → Crítica; "urgente" não altera; `priority_locked` respeitado).
+- [ ] **T11 · Priority Engine** — `engines/priority.py` (§8.5). *Aceite:* AC09 (76,5 → Alta; <24 h → Crítica; "urgente" não altera; `priority_locked` respeitado; `published_error=true` → impacto 100, risco 100 e Crítica, testado com demanda/interpretação montada diretamente, pois o Fake não preenche esse campo — D26).
 - [ ] **T12 · Assignment Engine** — `engines/assignment.py` (§8.6). *Aceite:* AC11.
 - [ ] **T13 · Dependências e duplicidade** — `engines/dependency.py`, `engines/dedupe.py` (§8.7, §8.8). *Aceite:* AC10 e caso 05.
 - [ ] **T14 · Banco e auditoria** — models SQLAlchemy + Alembic (§10), `services/audit.py` (§15). *Aceite:* AC15; migração sobe do zero.

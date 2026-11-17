@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal, Self
@@ -194,11 +195,30 @@ class PrioritiesConfig(_Strict):
         return self
 
 
+class GuardrailsConfig(_Strict):
+    """Parâmetros dos guardrails (§8.2, D11, D27). Textos comparados sem acento e em minúsculas."""
+
+    attachment_words: list[str] = Field(min_length=1)
+    product_min_word_length: int = Field(ge=1)
+    temporal_patterns: list[str] = Field(min_length=1)
+
+    @field_validator("temporal_patterns")
+    @classmethod
+    def _patterns_compile(cls, patterns: list[str]) -> list[str]:
+        for pattern in patterns:
+            try:
+                re.compile(pattern)
+            except re.error as exc:
+                raise ValueError(f"regex inválida {pattern!r}: {exc}") from exc
+        return patterns
+
+
 class AppConfig(_Strict):
     brands: dict[str, Brand]
     task_types: TaskTypesConfig
     team: list[TeamMember]
     priorities: PrioritiesConfig
+    guardrails: GuardrailsConfig
 
 
 # --- Loader ----------------------------------------------------------------------------------
@@ -207,6 +227,7 @@ _BRANDS = TypeAdapter(dict[str, Brand])
 _TEAM = TypeAdapter(list[TeamMember])
 _TASK_TYPES = TypeAdapter(TaskTypesConfig)
 _PRIORITIES = TypeAdapter(PrioritiesConfig)
+_GUARDRAILS = TypeAdapter(GuardrailsConfig)
 
 
 def _load_file[T](config_dir: Path, name: str, adapter: TypeAdapter[T]) -> T:
@@ -228,14 +249,21 @@ def _load_file[T](config_dir: Path, name: str, adapter: TypeAdapter[T]) -> T:
 
 
 def load_app_config(config_dir: Path = DEFAULT_CONFIG_DIR) -> AppConfig:
-    """Lê e valida os 4 arquivos de config/. Levanta ``ConfigError`` com mensagem clara."""
+    """Lê e valida os arquivos de config/. Levanta ``ConfigError`` com mensagem clara."""
     brands = _load_file(config_dir, "brands.json", _BRANDS)
     task_types = _load_file(config_dir, "task_types.json", _TASK_TYPES)
     team = _load_file(config_dir, "team.json", _TEAM)
     priorities = _load_file(config_dir, "priorities.json", _PRIORITIES)
+    guardrails = _load_file(config_dir, "guardrails.json", _GUARDRAILS)
 
     _check_team(team, task_types)
-    return AppConfig(brands=brands, task_types=task_types, team=team, priorities=priorities)
+    return AppConfig(
+        brands=brands,
+        task_types=task_types,
+        team=team,
+        priorities=priorities,
+        guardrails=guardrails,
+    )
 
 
 def _check_team(team: list[TeamMember], task_types: TaskTypesConfig) -> None:

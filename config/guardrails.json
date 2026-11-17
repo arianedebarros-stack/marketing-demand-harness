@@ -1,0 +1,17 @@
+{
+  "attachment_words": ["planilha", "planilhas", "anexo", "anexos", "anexada", "anexadas", "anexado", "anexados", "anexei", "tabela", "tabelas"],
+  "product_min_word_length": 4,
+  "temporal_patterns": [
+    "\\bhoje\\b",
+    "\\bamanha\\b",
+    "\\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)\\b",
+    "\\b\\d{1,2}/\\d{1,2}(/\\d{2,4})?\\b",
+    "\\b\\d{4}-\\d{2}-\\d{2}\\b",
+    "\\bdia \\d{1,2}\\b",
+    "\\b(janeiro|fevereiro|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\\b",
+    "\\b(proxima|proximo|esta|essa|nesta|nessa) (semana|mes)\\b",
+    "\\b(semana|mes) que vem\\b",
+    "\\bfim de semana\\b",
+    "\\b(fim|final) do mes\\b"
+  ]
+}
