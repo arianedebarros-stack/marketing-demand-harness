@@ -50,3 +50,7 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 **D19 · Docker no WSL.** Verificado na T01: `docker compose up -d db` sobe o Postgres 16 neste ambiente.
 
 **D20 · Horário fixo nos testes.** Os casos 02 e 06 dependem do horário ("amanhã" vira Crítica se o pedido chegar depois das 18h). Os testes fixam `now` pela manhã; assim o caso 02 dá 70,5 e o caso 06 dá 76,5, ambos Alta, como a SPEC espera.
+
+## Decisões posteriores
+
+**D21 · Next.js 15 em vez de 14** (2026-11-16, na revisão da T01; substitui "Next.js 14" do `CLAUDE.md`). O `npm audit` apontava uma vulnerabilidade crítica no `next@14.2.35`, sem correção na linha 14. O frontend passa para `next@15.5.29` com React 19 (exigido pelo App Router no Next 15) e `eslint-config-next@15.5.29`. A SPEC já aceita "Next.js 14+"; o `CLAUDE.md` foi atualizado para "Next.js 15". Depois da atualização restam 2 avisos (1 alto, 1 moderado), ambos no `postcss` embutido no próprio `next`, usado só no build. A correção só existe no Next 16, então eles ficam registrados aqui e serão reavaliados se houver patch na linha 15.

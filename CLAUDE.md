@@ -19,7 +19,7 @@ Você está implementando o **Marketing Demand Harness**. Leia nesta ordem antes
 ## Stack e comandos
 
 - Backend: Python 3.12+ (máquina da autora: 3.14), FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, pytest.
-- Frontend: Next.js 14 + TypeScript + Tailwind em `frontend/`.
+- Frontend: Next.js 15 (React 19) + TypeScript + Tailwind em `frontend/`.
 - Banco: PostgreSQL via `docker compose up -d db`.
 
 Comandos esperados no `Makefile` (crie na tarefa T01):
