@@ -9,3 +9,7 @@ node_modules/
 .next/
 dist/
 *.db
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+next-env.d.ts

@@ -4,7 +4,7 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 
 ## Fase 0 — Fundação
 
-- [ ] **T01 · Esqueleto do projeto** — estrutura de pastas da SPEC §5, `pyproject.toml`, `Makefile`, `docker-compose.yml` (Postgres 16), FastAPI com `GET /health`. *Aceite:* `make setup && make test` passa com 1 teste de health.
+- [x] **T01 · Esqueleto do projeto** — estrutura de pastas da SPEC §5, `pyproject.toml`, `Makefile`, `docker-compose.yml` (Postgres 16), FastAPI com `GET /health`. *Aceite:* `make setup && make test` passa com 1 teste de health.
 - [ ] **T02 · Config loader** — `core/config.py` lê `.env` (pydantic-settings) e `config/*.json` em modelos Pydantic validados. *Aceite:* teste carrega as 4 configs; JSON inválido gera erro claro.
 - [ ] **T03 · Schemas** — `schemas/demand.py` (SPEC §6), `schemas/llm.py` (`LLMInterpretation`, §8.1), `schemas/api.py` (`RequestView`, §9). *Aceite:* testes de validação dos schemas.
 - [ ] **T04 · State machine** — `core/state_machine.py` com a tabela de transições (§7). *Aceite:* teste de todas as transições válidas e de pelo menos 5 inválidas.
