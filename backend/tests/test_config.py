@@ -56,6 +56,8 @@ def test_loads_all_real_configs() -> None:
     assert config.task_types.rules.type_implies_channel == {"Push": "App", "E-mail": "E-mail"}
     assert "Banner Site" in config.task_types.rules.cta_types
     assert config.task_types.rules.supplier_promo_types == ["Arte", "Social Media"]
+    assert config.task_types.title.promo_template == "Promoção {supplier}"
+    assert config.task_types.title.objective_max_words == 6
 
     assert [m.id for m in config.team] == ["designer-a", "designer-b", "videomaker", "analista"]
     assert config.team[0].capacity == 15
@@ -137,6 +139,16 @@ def test_unknown_key_is_rejected(config_copy: Path) -> None:
             "task_types.json",
             lambda d: d.update(classification_threshold=1.5),
             "classification_threshold",
+        ),
+        (
+            "task_types.json",
+            lambda d: d["title"].update(promo_template="Promoção {fornecedor}"),
+            "{fornecedor}",
+        ),
+        (
+            "task_types.json",
+            lambda d: d["title"].update(objective_max_words=0),
+            "title.objective_max_words",
         ),
         (
             "task_types.json",

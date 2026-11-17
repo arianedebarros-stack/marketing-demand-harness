@@ -132,13 +132,30 @@ class TypeRulesConfig(_Strict):
     @classmethod
     def _templates_use_only_supplier(cls, templates: list[str]) -> list[str]:
         for template in templates:
-            try:
-                template.format(supplier="")
-            except (KeyError, IndexError, ValueError) as exc:
-                raise ValueError(
-                    f"modelo {template!r} inválido: só é aceito o marcador {{supplier}}"
-                ) from exc
+            _check_supplier_template(template)
         return templates
+
+
+class TitleConfig(_Strict):
+    """Parâmetros do título da tarefa (§8.9, D30)."""
+
+    promo_template: str = Field(min_length=1)
+    objective_max_words: int = Field(ge=1)
+
+    @field_validator("promo_template")
+    @classmethod
+    def _template_uses_only_supplier(cls, template: str) -> str:
+        _check_supplier_template(template)
+        return template
+
+
+def _check_supplier_template(template: str) -> None:
+    try:
+        template.format(supplier="")
+    except (KeyError, IndexError, ValueError) as exc:
+        raise ValueError(
+            f"modelo {template!r} inválido: só é aceito o marcador {{supplier}}"
+        ) from exc
 
 
 class ScoreBandRule(_Strict):
@@ -155,6 +172,7 @@ class TaskTypesConfig(_Strict):
     format_implies_channel: dict[str, str]
     suppliers: list[str]
     approver_default: str = Field(min_length=1)
+    title: TitleConfig
     rules: TypeRulesConfig
 
     @model_validator(mode="after")

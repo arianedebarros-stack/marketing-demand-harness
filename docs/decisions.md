@@ -108,3 +108,18 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 - **Grupos.** `channel + format` e `product + price` viram uma pergunta só quando os dois faltam. Quando falta só um, a pergunta é só desse campo, com texto próprio. Assim nunca se pergunta um campo preenchido.
 - **Marca faltante.** `audience` e `message_tone` continuam em `missing` (contam no score), mas não são perguntados enquanto a marca falta.
 - **Resultado.** O engine devolve obrigatórios, faltantes, perguntas, score com faixa e `ready` (100% e tipo resolvido). Quem grava `missing_information` e `briefing_score` na demanda e muda o estado é o pipeline (T10).
+
+**D30 · Detalhes do título e do briefing final** (2026-11-17, T09; o objetivo curto, os campos do tipo e o formato das datas foram aprovados pela autora antes da implementação). Complementa a D15.
+- **Objetivo curto:** são as primeiras N palavras do objetivo, sem reticências. N fica em `config/task_types.json` (`title.objective_max_words`, valor 6).
+- **"Promoção <fornecedor>":** o meio do título só usa o fornecedor quando a demanda é promocional. Um vídeo com fornecedor que não é promoção usa o objetivo curto. O modelo fica em `title.promo_template`, e o loader só aceita o marcador `{supplier}`. A ordem continua a da §8.9: campanha, depois promoção, depois objetivo curto.
+- **Partes vazias:** são omitidas do título junto com o separador ("Arte | Ferjá").
+- **Campos próprios do tipo:** os obrigatórios do tipo (`required`, e `promo_required` quando promocional) que não estão na lista da §8.9 entram depois do CTA e antes do PRAZO, na ordem de `task_types.json`, com rótulo em maiúsculas (`briefing.TYPE_FIELD_LABELS`). Campos de outros tipos não entram.
+- **Datas:** PRAZO, data da gravação e data do evento aparecem como dd/mm/aaaa no texto. Uma VIGÊNCIA em ISO também é convertida; vigência em texto livre aparece como está. Os dados internos continuam em ISO.
+- **Formato dos valores:**
+  - RESPONSÁVEL mostra o nome do colaborador em `team.json`, e o id quando ele não está lá.
+  - DEPENDÊNCIAS é escrita como `dependência (dono, status)`, com várias separadas por "; ".
+  - ARQUIVOS são os nomes separados por "; ".
+  - PRIORIDADE mostra só o nível.
+  - BRIEFING SCORE vem como "N%" e sempre aparece.
+  - APROVAÇÃO só aparece quando `approver` está preenchido. O padrão `approver_default` é aplicado na triagem, não aqui.
+- **Título reaproveitável:** `build_briefing` aceita um título já calculado, para o pipeline não precisar recalculá-lo.

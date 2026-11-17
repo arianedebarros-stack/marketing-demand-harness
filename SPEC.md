@@ -222,8 +222,8 @@ Antes de criar: tarefa aberta com mesma `brand` + `task_type` + (`supplier` ou `
 
 ### 8.9 Título e briefing final
 
-- Título: `[TIPO] | [CAMPANHA ou "Promoção <fornecedor>" ou objetivo curto] | [MARCA]` — ex.: `Arte | Promoção Krona | Construjá`.
-- Briefing final: template em texto (seção 29 da spec original): TÍTULO, OBJETIVO, MARCA, PÚBLICO, CANAL, FORMATO, DIMENSÃO, MENSAGEM E TOM, PRODUTOS, PREÇOS, VIGÊNCIA, CTA, PRAZO, PRIORIDADE, RESPONSÁVEL, APROVAÇÃO, DEPENDÊNCIAS, ARQUIVOS, BRIEFING SCORE. Campos vazios não aparecem.
+- Título: `[TIPO] | [CAMPANHA ou "Promoção <fornecedor>" ou objetivo curto] | [MARCA]` — ex.: `Arte | Promoção Krona | Construjá`. "Promoção <fornecedor>" só quando promocional; objetivo curto = primeiras `title.objective_max_words` palavras (`task_types.json`, D30).
+- Briefing final: template em texto (seção 29 da spec original): TÍTULO, OBJETIVO, MARCA, PÚBLICO, CANAL, FORMATO, DIMENSÃO, MENSAGEM E TOM, PRODUTOS, PREÇOS, VIGÊNCIA, CTA, PRAZO, PRIORIDADE, RESPONSÁVEL, APROVAÇÃO, DEPENDÊNCIAS, ARQUIVOS, BRIEFING SCORE. Campos vazios não aparecem. Uma linha `RÓTULO: valor` por campo (D15); obrigatórios próprios do tipo entram entre CTA e PRAZO; datas em dd/mm/aaaa (D30).
 
 ## 9. API
 
