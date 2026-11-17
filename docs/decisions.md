@@ -70,3 +70,12 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 - Chaves desconhecidas em `extracted` são guardadas, para o guardrail descartar e auditar. O `input_schema` da tool declara `additionalProperties: false`, para orientar o modelo.
 - O `input_schema` é gerado do próprio modelo e não depende de outros schemas (sem `$ref`).
 - No audit e no `link-existing`, ids de tarefa são inteiros e ids de demanda são UUID. A T14 pode rever isso quando criar as tabelas.
+
+**D26 · Comportamento do FakeLLMClient onde a §12 não é explícita** (2026-11-16, T05).
+- **Palavras-chave no código:** as palavras de tipo, canal e formato ficam em `llm/fake_client.py`. Elas simulam o que o LLM sabe e não são regras de negócio. Marcas e fornecedores vêm do contexto, que é montado a partir do `config/`.
+- **Histórico inteiro:** os campos são extraídos mensagem por mensagem, e a mais recente vence. Classificação, `is_promotional` e o objetivo de reserva ("Divulgar promoção <fornecedor>") usam o histórico completo. Isso permite ao caso 06 chegar a 100% com informação espalhada em três mensagens.
+- **Canais reconhecidos:** Instagram, WhatsApp, Facebook, LinkedIn, Site, App e E-mail. Formatos: Feed, Stories, Reels e Carrossel. Quando há mais de um, vale o primeiro da lista.
+- **Vigência em ISO:** quando a data é resolvida, `validity` é gravada como `YYYY-MM-DD`, seguindo a convenção de datas internas.
+- **"-feira" não é evento:** o sufixo "-feira" dos dias da semana é removido antes de classificar, para que "quarta-feira" não seja confundido com o tipo Evento ("feira").
+- **Dono de dependência:** é o nome com inicial maiúscula depois de "por/pelo/pela/com/do/da" (ex.: "por Compras"). Sem esse nome, o dono é Compras quando o texto fala de preço e "Não informado" nos outros casos. "Ainda não aprovado o X" vira "Aprovação de X".
+- **Campos que o Fake não preenche:** `published_error` é sempre `false` e `files` vem sempre vazio, porque a §12 não define regras para eles. Os arquivos obrigatórios vêm do Rule Engine (§8.3).

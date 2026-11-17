@@ -11,7 +11,7 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 
 ## Fase 1 — Etapa 1 do MVP (interpretação e briefing)
 
-- [ ] **T05 · FakeLLMClient** — `llm/base.py` (interface) + `llm/fake_client.py` (§12). *Aceite:* casos 01–04 da §17 retornam a interpretação esperada.
+- [x] **T05 · FakeLLMClient** — `llm/base.py` (interface) + `llm/fake_client.py` (§12). *Aceite:* casos 01–04 da §17 retornam a interpretação esperada.
 - [ ] **T06 · Guardrails** — `engines/guardrails.py` (§8.2). *Aceite:* `test_guardrails.py` cobre preço, produto, data, marca inexistente, campo do gestor (AC03).
 - [ ] **T07 · Rule Engine** — `engines/rules.py` (§8.3). *Aceite:* `test_rules.py`, incluindo Ferjá sem CTA Construjá (AC07).
 - [ ] **T08 · Validator + Briefing Score** — `engines/validator.py` e `engines/score.py` (§8.4). *Aceite:* AC04, AC05, AC08.
