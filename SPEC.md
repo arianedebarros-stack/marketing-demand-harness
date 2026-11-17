@@ -153,17 +153,20 @@ Regras do prompt: nunca inventar; campo ausente não aparece; datas em ISO calcu
 
 ### 8.2 Guardrails (`engines/guardrails.py`)
 
-Aplicados à saída do LLM **antes** do merge. Cada descarte gera audit log com o motivo.
-Parâmetros (expressões temporais, palavras de anexo, tamanho mínimo de palavra do produto) em `config/guardrails.json`.
+Aplicados à saída do LLM **antes** do merge. Cada descarte ou ajuste gera audit log com o motivo (`guardrail_discard` quando o valor é descartado; `guardrail_adjust` quando é substituído). Decisões: D10, D11 e D27 em `docs/decisions.md`.
+Parâmetros (expressões temporais, palavras de anexo, tamanho mínimo de palavra do produto) em `config/guardrails.json`. Comparações de texto são feitas sem acento e sem caixa.
 
 | Campo | Regra |
 |---|---|
-| `task_type` | Fora da lista → `"Outro"`; confiança limitada a [0, 1] |
-| `brand` | Deve existir em `brands.json` (comparação sem acento/caixa); senão descarta |
-| `price`, `quantity`, `budget`, `participants_count` | Exige dígito no texto do solicitante (ou "planilha/anexo/tabela" para `price`) |
+| `task_type` | Comparado com a lista sem acento/caixa ("video" → "Vídeo"); fora da lista → `"Outro"`. Confiança limitada a [0, 1] |
+| `brand` | Deve existir em `brands.json` (comparação sem acento/caixa); senão descarta. Se existir, é gravada com a grafia de `brands.json` (ajuste auditado). Fornecedor como marca é descartado |
+| `price`, `quantity`, `budget`, `participants_count` | Se o valor tem dígitos, **todos os seus grupos de dígitos** devem aparecer no texto do solicitante — mesmo que haja menção a planilha (D10, D27). Valor sem dígitos só é aceito em `price`, e apenas se o texto mencionar planilha/anexo/tabela |
 | `product` | Exige palavra (≥ 4 letras) do valor presente no texto do solicitante, ou menção a planilha/anexo |
-| datas | Devem ser ISO válidas e o texto do solicitante deve conter referência temporal |
-| qualquer campo | Chave desconhecida é ignorada; campo com `field_origin = manager` nunca é sobrescrito |
+| `deadline`, `shoot_date`, `event_date` | Devem ser ISO `YYYY-MM-DD` válidas e o texto do solicitante deve conter referência temporal (expressões em `config/guardrails.json`; "urgente" não conta) |
+| `validity` | Exige referência temporal no texto do solicitante; não precisa ser ISO (D27) |
+| qualquer campo | Chave desconhecida é ignorada (e auditada); campo com `field_origin = manager` nunca é sobrescrito |
+
+A proteção do `task_type` definido pelo gestor ou confirmado (`type_confirmed`) é feita no merge do pipeline (§8, T10), não no guardrail (D27).
 
 ### 8.3 Rule Engine (`engines/rules.py`)
 
