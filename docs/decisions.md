@@ -56,3 +56,17 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 **D21 · Next.js 15 em vez de 14** (2026-11-16, na revisão da T01; substitui "Next.js 14" do `CLAUDE.md`). O `npm audit` apontava uma vulnerabilidade crítica no `next@14.2.35`, sem correção na linha 14. O frontend passa para `next@15.5.29` com React 19 (exigido pelo App Router no Next 15) e `eslint-config-next@15.5.29`. A SPEC já aceita "Next.js 14+"; o `CLAUDE.md` foi atualizado para "Next.js 15". Depois da atualização restam 2 avisos (1 alto, 1 moderado), ambos no `postcss` embutido no próprio `next`, usado só no build. A correção só existe no Next 16, então eles ficam registrados aqui e serão reavaliados se houver patch na linha 15.
 
 **D22 · Validação dos arquivos de `config/`** (2026-11-16, T02). Além dos tipos, `core/config.py` rejeita com `ConfigError` (mensagem com arquivo, campo e motivo): chaves desconhecidas em qualquer objeto (evita erro de digitação passar em silêncio); pesos de prioridade que não somam 1; `bands` fora de ordem decrescente ou sem faixa `min 0`; `urgency_by_hours` fora de ordem crescente ou sem um último item com `max_hours null`; `deadline_hour` fora de 0–23; `classification_threshold` fora de [0, 1]; `types` sem `"Outro"` (destino dos tipos desconhecidos no guardrail, §8.2); `skills` da equipe que não existem em `task_types.json`; ids de equipe duplicados. São checagens de consistência dos próprios JSONs, sem valor de negócio no código. A pasta de config pode ser trocada por `CONFIG_DIR` (padrão: `config/` na raiz do repositório).
+
+**D23 · Formato de `questions[]` e campos editáveis no PATCH** (2026-11-16, T03). A §9 não define nenhum dos dois.
+- Cada pergunta é `{fields: [..], text}`. Uma pergunta pode cobrir mais de um campo, como `channel + format` e `product + price` (§8.4).
+- O `PATCH /requests/{id}` aceita os campos de conteúdo do briefing, mais `task_type`, `priority`, `assigned_to` e `approver`.
+- Não são editáveis: estado, scores, travas (`*_locked`), `field_origin`, ids e listas calculadas pelo harness. Mandar um desses campos dá `422`.
+- Só os campos enviados contam; mandar `null` limpa o campo.
+
+**D24 · `published_error` faz parte da demanda** (2026-11-16, T03). A §8.5 usa `published_error` para impacto, risco e elevação para Crítica, mas a §6 não lista esse campo. Ele é guardado na demanda (padrão `false`) para que `POST /requests/{id}/triage` possa recalcular a prioridade sem chamar o LLM de novo.
+
+**D25 · Schema do LLM só garante a forma** (2026-11-16, T03). Em `LLMInterpretation`:
+- Os valores de `extracted` chegam como texto (números viram texto). Tipo, confiança e datas não são validados no schema. O guardrail (§8.2) cuida disso e registra cada descarte, para que um valor ruim não derrube a interpretação inteira.
+- Chaves desconhecidas em `extracted` são guardadas, para o guardrail descartar e auditar. O `input_schema` da tool declara `additionalProperties: false`, para orientar o modelo.
+- O `input_schema` é gerado do próprio modelo e não depende de outros schemas (sem `$ref`).
+- No audit e no `link-existing`, ids de tarefa são inteiros e ids de demanda são UUID. A T14 pode rever isso quando criar as tabelas.
