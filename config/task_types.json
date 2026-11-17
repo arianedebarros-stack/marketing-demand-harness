@@ -1,6 +1,12 @@
 {
   "universal_required": ["requester", "brand", "objective", "audience", "message_tone", "deadline"],
   "classification_threshold": 0.7,
+  "score_bands": [
+    { "band": "Pronto para produção", "min": 100 },
+    { "band": "Quase pronto", "min": 80 },
+    { "band": "Parcial", "min": 50 },
+    { "band": "Incompleto", "min": 0 }
+  ],
   "types": {
     "Arte":                { "required": ["channel", "format"], "promo_required": ["product", "price", "validity"], "impact": 60 },
     "Vídeo":               { "required": ["duration", "format", "concept", "location", "participants", "shoot_date"], "impact": 65 },

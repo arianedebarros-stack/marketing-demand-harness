@@ -42,6 +42,12 @@ def test_loads_all_real_configs() -> None:
     assert config.brands["construdigi"].mandatory_cta is None
 
     assert config.task_types.classification_threshold == 0.7
+    assert [(b.band, b.min) for b in config.task_types.score_bands] == [
+        ("Pronto para produção", 100),
+        ("Quase pronto", 80),
+        ("Parcial", 50),
+        ("Incompleto", 0),
+    ]
     assert config.task_types.types["Arte"].promo_required == ["product", "price", "validity"]
     assert config.task_types.types["Vídeo"].promo_required == []
     assert config.task_types.formats["instagram|feed"] == "1080 × 1350 px"
@@ -131,6 +137,21 @@ def test_unknown_key_is_rejected(config_copy: Path) -> None:
             "task_types.json",
             lambda d: d.update(classification_threshold=1.5),
             "classification_threshold",
+        ),
+        (
+            "task_types.json",
+            lambda d: d["score_bands"].reverse(),
+            "score_bands devem estar em ordem decrescente",
+        ),
+        (
+            "task_types.json",
+            lambda d: d["score_bands"].pop(),
+            "score_bands precisa terminar com uma faixa com min 0",
+        ),
+        (
+            "task_types.json",
+            lambda d: d["score_bands"][0].update(band="Perfeito"),
+            "score_bands.0.band",
         ),
         (
             "task_types.json",

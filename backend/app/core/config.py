@@ -25,6 +25,8 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.schemas.api import ScoreBand
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONFIG_DIR = REPO_ROOT / "config"
 DEFAULT_ENV_FILE = REPO_ROOT / ".env"
@@ -139,9 +141,15 @@ class TypeRulesConfig(_Strict):
         return templates
 
 
+class ScoreBandRule(_Strict):
+    band: ScoreBand
+    min: int = Field(ge=0, le=100)
+
+
 class TaskTypesConfig(_Strict):
-    universal_required: list[str]
+    universal_required: list[str] = Field(min_length=1)
     classification_threshold: float = Field(ge=0, le=1)
+    score_bands: list[ScoreBandRule] = Field(min_length=1)
     types: dict[str, TaskTypeRule]
     formats: dict[str, str]
     format_implies_channel: dict[str, str]
@@ -153,6 +161,15 @@ class TaskTypesConfig(_Strict):
     def _has_fallback_type(self) -> Self:
         if "Outro" not in self.types:
             raise ValueError('types precisa conter "Outro" (destino de tipos desconhecidos)')
+        return self
+
+    @model_validator(mode="after")
+    def _ordered_score_bands(self) -> Self:
+        mins = [band.min for band in self.score_bands]
+        if mins != sorted(mins, reverse=True) or len(set(mins)) != len(mins):
+            raise ValueError("score_bands devem estar em ordem decrescente de min")
+        if mins[-1] != 0:
+            raise ValueError("score_bands precisa terminar com uma faixa com min 0")
         return self
 
     @model_validator(mode="after")

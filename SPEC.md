@@ -184,7 +184,8 @@ Lê `config/` (parâmetros das regras em `task_types.json`, chave `rules`). Camp
 
 - Obrigatórios = `universal_required` ∪ `types[t].required` ∪ (`promo_required` se promocional).
 - `briefing_score = round(preenchidos / total × 100)`.
-- Faixas: 0–49 Incompleto · 50–79 Parcial · 80–99 Quase pronto · 100 Pronto para produção.
+- Faixas: 0–49 Incompleto · 50–79 Parcial · 80–99 Quase pronto · 100 Pronto para produção (em `task_types.json`, `score_bands`). Arredondamento meio para cima; 100 só com tudo preenchido (D29).
+- Tipo incerto (vazio ou confiança < `classification_threshold` sem confirmação): `missing = ["task_type"]`, só a pergunta do tipo, score sobre universais + tipo (D29).
 - Só avança para `READY_FOR_TRIAGE` com 100%.
 - **Perguntas**: só campos faltantes; se `brand` falta, não perguntar `audience`/`message_tone` (virão da marca). Agrupar `channel+format` e `product+price` em uma pergunta cada. Nunca perguntar campo preenchido. Textos das perguntas em `validator.QUESTIONS`.
 

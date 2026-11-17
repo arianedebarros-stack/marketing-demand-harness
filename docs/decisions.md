@@ -98,3 +98,13 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 - **Parâmetros em `config/task_types.json` (`rules`).** Ficam lá `type_implies_channel`, `cta_types`, `supplier_promo_types` e `promo_supplier_files` (modelos com `{supplier}`). O loader rejeita tipos inexistentes e marcadores desconhecidos.
 - **Comparações.** As chaves de `formats` e `format_implies_channel` são comparadas sem acento e sem caixa ("INSTAGRAM" + "stories" encontra `instagram|stories`).
 - **Eventos para o audit.** O engine devolve uma lista de mudanças (`rule_applied`, com campo, valor anterior, regra e novo valor). Quem grava essas mudanças no `audit_log` é o pipeline.
+
+**D29 · Detalhes do Validator e do Briefing Score** (2026-11-17, T08; o primeiro ponto foi aprovado pela autora antes da implementação).
+- **Tipo incerto: só confirmar o tipo.** O tipo é incerto quando `task_type` está vazio, quando não existe em `task_types.json` ou quando a confiança fica abaixo de `classification_threshold` sem `type_confirmed` e sem origem `manager`. Nesse caso o Validator devolve `missing = ["task_type"]` e uma única pergunta, de confirmação do tipo. O score é calculado sobre `universal_required` + `task_type`, com o tipo contado como faltante, então nunca chega a 100%. Os campos do tipo só são cobrados depois da confirmação. Confiança igual ao limite (0,70) é aceita, porque a §7 fala em "< 0,70".
+- **Faixas do score em `config/task_types.json` (`score_bands`).** As faixas são valor de negócio. O loader exige ordem decrescente de `min`, sem repetição, terminando em `min 0`, e só aceita os nomes da §8.4.
+- **Arredondamento.** O score usa arredondamento comercial (meio para cima, 12,5 → 13), e não o arredondamento bancário do `round` do Python. 100% só com todos os obrigatórios preenchidos: 99,5% fica em 99 ("Quase pronto").
+- **Preenchido** é valor diferente de `null` e, em texto, diferente de vazio ou só espaços.
+- **Ordem.** `missing` segue a ordem dos obrigatórios (universais, depois os do tipo, depois os de promoção). As perguntas seguem a ordem de `validator.QUESTIONS`, com o prazo por último, como no caso 01.
+- **Grupos.** `channel + format` e `product + price` viram uma pergunta só quando os dois faltam. Quando falta só um, a pergunta é só desse campo, com texto próprio. Assim nunca se pergunta um campo preenchido.
+- **Marca faltante.** `audience` e `message_tone` continuam em `missing` (contam no score), mas não são perguntados enquanto a marca falta.
+- **Resultado.** O engine devolve obrigatórios, faltantes, perguntas, score com faixa e `ready` (100% e tipo resolvido). Quem grava `missing_information` e `briefing_score` na demanda e muda o estado é o pipeline (T10).
