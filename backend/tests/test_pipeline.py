@@ -408,13 +408,40 @@ def test_llm_dependencies_are_added_once_and_keep_status() -> None:
     ]
 
 
-def test_published_error_follows_llm() -> None:
+def _with_published_error() -> Demand:
+    return _new().model_copy(update={"published_error": True})
+
+
+def test_published_error_explicit_true_is_saved() -> None:
     """D24/D26: a flag fica na demanda para a triagem (T11) recalcular a prioridade."""
     llm = ScriptedLLM(_interp(published_error=True))
     assert _run(_new(), ["Saiu com erro"], llm).demand.published_error is True
 
 
-# --- Estados -------------------------------------------------------------------------------
+@pytest.mark.parametrize(
+    "interpretation",
+    [_interp(), _interp(published_error=None)],
+    ids=["ausente", "vazio"],
+)
+def test_published_error_absent_keeps_previous(interpretation: LLMInterpretation) -> None:
+    """D31: sem valor explícito na interpretação nova, a flag anterior fica."""
+    result = _run(_with_published_error(), ["Mais um detalhe"], ScriptedLLM(interpretation))
+
+    assert result.demand.published_error is True
+    assert not any(
+        e.action == "field_registered" and e.new_value["field"] == "published_error"
+        for e in result.events
+    )
+
+
+def test_published_error_explicit_false_clears_previous() -> None:
+    llm = ScriptedLLM(_interp(published_error=False))
+    assert _run(_with_published_error(), ["Não houve erro"], llm).demand.published_error is False
+
+
+def test_fake_does_not_touch_published_error() -> None:
+    """O Fake nunca preenche a flag (D26), então ela não é apagada entre mensagens."""
+    assert _run(_with_published_error(), [CASE_02]).demand.published_error is True
 
 
 def test_message_in_pending_approval_goes_back_to_validating_keeping_locks() -> None:
@@ -436,11 +463,88 @@ def test_message_in_pending_approval_goes_back_to_validating_keeping_locks() -> 
     assert transitions == ["VALIDATING", "READY_FOR_TRIAGE"]
     out = result.demand
     assert out.format == "Stories"
-    # A dimensão veio da mensagem ("1080x1350"), então a regra de formato não a troca (D28).
-    assert out.dimensions == "1080 × 1350 px"
-    assert out.field_origin["dimensions"] is M
+    # D28/D31: o formato mudou e a mensagem nova não traz dimensão → a regra recalcula.
+    assert out.dimensions == "1080 × 1920 px"
+    assert out.field_origin["dimensions"] is R
     assert (out.priority_locked, out.assignment_locked) == (True, True)
     assert (out.priority, out.assigned_to) == ("Alta", "designer-a")
+
+
+# --- Troca de formato e dimensão (D28, D31) ------------------------------------------------
+
+
+def _format_change(new_message: str, dims_origin: FieldOrigin = M) -> PipelineResult:
+    first = _run(_new(), [CASE_02]).demand
+    assert (first.dimensions, first.field_origin["dimensions"]) == ("1080 × 1350 px", M)
+    demand = first.model_copy(
+        update={
+            "status": S.NEEDS_INFORMATION,
+            "field_origin": {**first.field_origin, "dimensions": dims_origin},
+        }
+    )
+    return _run(demand, [CASE_02, new_message])
+
+
+def test_format_change_drops_message_dimensions() -> None:
+    result = _format_change("Troca para stories.")
+
+    assert result.demand.dimensions == "1080 × 1920 px"
+    assert result.demand.field_origin["dimensions"] is R
+    cleared = next(e for e in result.events if e.action == "field_cleared")
+    assert cleared.previous_value == {
+        "field": "dimensions",
+        "value": "1080 × 1350 px",
+        "origin": "message",
+    }
+    assert cleared.new_value == {"field": "dimensions", "reason": "format_changed"}
+    actions = _actions(result.events)
+    assert actions.index("field_cleared") < actions.index("rule_applied")
+
+
+def test_format_change_with_new_dimensions_keeps_them() -> None:
+    result = _format_change("Troca para stories 1080x1920.")
+
+    assert result.demand.dimensions == "1080 × 1920 px"
+    assert result.demand.field_origin["dimensions"] is M
+    assert "field_cleared" not in _actions(result.events)
+
+
+def test_format_change_restating_old_dimensions_keeps_them() -> None:
+    """Se a mensagem nova repete a dimensão, ela é do solicitante e fica."""
+    result = _format_change("Troca para stories, mas mantém 1080x1350.")
+
+    assert result.demand.format == "Stories"
+    assert result.demand.dimensions == "1080 × 1350 px"
+    assert result.demand.field_origin["dimensions"] is M
+
+
+def test_format_change_never_touches_manager_dimensions() -> None:
+    result = _format_change("Troca para stories.", dims_origin=G)
+
+    assert result.demand.dimensions == "1080 × 1350 px"
+    assert result.demand.field_origin["dimensions"] is G
+    assert "field_cleared" not in _actions(result.events)
+
+
+def test_first_format_keeps_message_dimensions() -> None:
+    """Formato que aparece pela primeira vez não é troca: a dimensão da mensagem fica."""
+    first = _run(_new(), ["Arte 1080x1080 da Construjá para divulgar a promoção Krona"])
+    assert first.demand.format is None
+
+    out = _run(
+        first.demand,
+        ["Arte 1080x1080 da Construjá para divulgar a promoção Krona", "No feed."],
+    ).demand
+
+    assert out.format == "Feed"
+    assert (out.dimensions, out.field_origin["dimensions"]) == ("1080 × 1080 px", M)
+
+
+def test_same_format_keeps_message_dimensions() -> None:
+    result = _format_change("Mantém o feed, só confirma o prazo.")
+
+    assert result.demand.dimensions == "1080 × 1350 px"
+    assert "field_cleared" not in _actions(result.events)
 
 
 @pytest.mark.parametrize(

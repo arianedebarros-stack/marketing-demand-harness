@@ -141,7 +141,7 @@ TASK_CREATED com dependência pendente → BLOCKED (flag da tarefa; volta a TASK
   "classification": { "type": "Arte", "confidence": 0.96 },
   "extracted": { "brand": "Construjá", "supplier": "Krona", "deadline": "2026-10-20" },
   "is_promotional": true,
-  "published_error": false,
+  "published_error": false,     // opcional: ausente/null mantém o valor anterior (D31)
   "dependencies": [{ "dependency": "Aprovação de preço", "owner": "Compras", "status": "Pendente" }],
   "files": ["Planilha de preços"]
 }

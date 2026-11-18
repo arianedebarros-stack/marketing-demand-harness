@@ -19,7 +19,7 @@ from pydantic_core import to_jsonable_python
 
 from app.core.config import AppConfig
 from app.core.state_machine import InvalidTransition, can_transition, transition
-from app.core.text import normalize
+from app.core.text import digit_groups, normalize
 from app.engines.guardrails import apply_guardrails
 from app.engines.rules import apply_rules
 from app.engines.validator import validate_demand
@@ -123,7 +123,7 @@ def process_message(
             )
         )
 
-    merged = _merge(demand, guarded.interpretation, requester_text, events)
+    merged = _merge(demand, guarded.interpretation, requester_text, messages[-1], events)
     if current is S.RECEIVED:
         merged = _set_status(merged, S.PARSED, events)
     return _validate_and_route(merged, config, events)
@@ -141,6 +141,7 @@ def _merge(
     demand: Demand,
     interpretation: LLMInterpretation,
     requester_text: str,
+    last_message: str,
     events: list[AuditEvent],
 ) -> Demand:
     origin = dict(demand.field_origin)
@@ -181,7 +182,8 @@ def _merge(
     if origin.get("is_promotional") is not MANAGER:
         updates["is_promotional"] = interpretation.is_promotional
         origin["is_promotional"] = LLM
-    updates["published_error"] = interpretation.published_error  # D24
+    if interpretation.published_error is not None:  # D24; ausente mantém o anterior (D31)
+        updates["published_error"] = interpretation.published_error
 
     dependencies = _merge_dependencies(demand.dependencies, interpretation.dependencies)
     if dependencies != demand.dependencies:
@@ -191,6 +193,7 @@ def _merge(
         updates["required_files"] = files
 
     merged = Demand.model_validate({**demand.model_dump(), **updates, "field_origin": origin})
+    merged = _drop_stale_dimensions(demand, merged, last_message, events)
     for name in updates:
         if name == "classification_confidence":
             continue
@@ -206,6 +209,36 @@ def _merge(
                 )
             )
     return merged
+
+
+def _drop_stale_dimensions(
+    before: Demand, merged: Demand, last_message: str, events: list[AuditEvent]
+) -> Demand:
+    """Troca de formato apaga a dimensão de origem ``message`` que a mensagem nova não repete.
+
+    Assim o Rule Engine recalcula a dimensão para o formato novo (D28, D31). Formato que aparece
+    pela primeira vez não é troca. Dimensão do gestor (ou de outra origem) nunca é tocada.
+    """
+    old_format, new_format = before.format, merged.format
+    if not old_format or not new_format or normalize(old_format) == normalize(new_format):
+        return merged
+    dimensions = merged.dimensions
+    if not dimensions or merged.field_origin.get("dimensions") is not MESSAGE:
+        return merged
+    if digit_groups(dimensions) <= digit_groups(last_message):
+        return merged  # a mensagem nova traz (ou repete) a dimensão
+
+    origin = dict(merged.field_origin)
+    origin.pop("dimensions")
+    events.append(
+        AuditEvent(
+            "harness",
+            "field_cleared",
+            previous_value=_field_payload("dimensions", dimensions, MESSAGE),
+            new_value={"field": "dimensions", "reason": "format_changed"},
+        )
+    )
+    return merged.model_copy(update={"dimensions": None, "field_origin": origin})
 
 
 def _merge_dependencies(current: list[Dependency], new: list[Dependency]) -> list[Dependency]:

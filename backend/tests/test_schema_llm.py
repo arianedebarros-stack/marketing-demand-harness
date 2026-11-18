@@ -35,7 +35,7 @@ def test_optional_parts_default_empty() -> None:
     )
 
     assert interp.is_promotional is False
-    assert interp.published_error is False
+    assert interp.published_error is None  # D31: ausente ≠ false explícito
     assert interp.dependencies == []
     assert interp.files == []
     assert interp.extracted.provided() == {}

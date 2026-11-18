@@ -86,7 +86,8 @@ class LLMInterpretation(BaseModel):
     classification: Classification
     extracted: ExtractedFields
     is_promotional: bool = False
-    published_error: bool = False
+    # None = o LLM não disse nada; só um valor explícito muda a flag da demanda (D31).
+    published_error: bool | None = None
     dependencies: list[Dependency] = Field(default_factory=list)
     files: list[str] = Field(default_factory=list)
 
