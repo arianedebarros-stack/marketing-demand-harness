@@ -16,7 +16,7 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 - [x] **T07 · Rule Engine** — `engines/rules.py` (§8.3). *Aceite:* `test_rules.py`, incluindo Ferjá sem CTA Construjá (AC07).
 - [x] **T08 · Validator + Briefing Score** — `engines/validator.py` e `engines/score.py` (§8.4). *Aceite:* AC04, AC05, AC08.
 - [x] **T09 · Título e briefing final** — `engines/briefing.py` (§8.9). *Aceite:* AC12.
-- [ ] **T10 · Pipeline** — `services/pipeline.py` orquestra interpretação → guardrails → merge → regras → validação → estado, com memória da demanda. Antes de chamar o Rule Engine, o merge grava na demanda o `is_promotional` do LLM, com origem `llm` (D28), e os `files` do LLM como itens de `required_files` com origem `llm`. *Aceite:* AC06 e caso 01; teste de que `task_type` definido pelo gestor (`field_origin = manager`) ou confirmado (`type_confirmed = true`) não é sobrescrito pela classificação do LLM (D27).
+- [x] **T10 · Pipeline** — `services/pipeline.py` orquestra interpretação → guardrails → merge → regras → validação → estado, com memória da demanda. Antes de chamar o Rule Engine, o merge grava na demanda o `is_promotional` do LLM, com origem `llm` (D28), e os `files` do LLM como itens de `required_files` com origem `llm`. *Aceite:* AC06 e caso 01; teste de que `task_type` definido pelo gestor (`field_origin = manager`) ou confirmado (`type_confirmed = true`) não é sobrescrito pela classificação do LLM (D27).
 
 ## Fase 2 — Etapa 2 do MVP (triagem e aprovação)
 

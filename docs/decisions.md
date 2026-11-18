@@ -123,3 +123,28 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - BRIEFING SCORE vem como "N%" e sempre aparece.
   - APROVAÇÃO só aparece quando `approver` está preenchido. O padrão `approver_default` é aplicado na triagem, não aqui.
 - **Título reaproveitável:** `build_briefing` aceita um título já calculado, para o pipeline não precisar recalculá-lo.
+
+**D31 · Detalhes do pipeline** (2026-11-17, T10).
+- **Sem persistência.** `services/pipeline.py` recebe a demanda e o histórico completo de mensagens do solicitante. Ele devolve a nova demanda, as perguntas, o `next_action`, a faixa do score e a lista de eventos de audit (`AuditEvent`). Quem grava a demanda e o `audit_log` são a T14 e a T15. A demanda de entrada não é alterada.
+- **Para em `READY_FOR_TRIAGE`.** A triagem automática até `PENDING_APPROVAL` (D01) entra quando os engines da T11–T13 existirem. Até lá, `next_action` é `null` em `READY_FOR_TRIAGE`.
+- **Estados de entrada.** Uma mensagem só é aceita em `RECEIVED` (passa por `PARSED`), `NEEDS_INFORMATION` ou `PENDING_APPROVAL` (volta a `VALIDATING` mantendo as travas, §7). Em qualquer outro estado, o pipeline levanta `InvalidTransition` antes de chamar o LLM, e quem chama grava `audit_payload()`.
+- **Campos perguntados por último.** São recalculados com o Validator sobre a demanda anterior, quando ela está em `NEEDS_INFORMATION`. Assim não é preciso guardar mais nada.
+- **Texto do solicitante para guardrails e origem.** É o histórico inteiro, juntado. Um valor que veio de uma mensagem anterior continua tendo respaldo.
+- **Merge** (D06, D07, D27, D28):
+  - Um valor em branco não apaga o anterior.
+  - O `task_type` e a confiança só são atualizados se o tipo não é do gestor nem está confirmado. A classificação vai sempre para o audit, com `applied` indicando se foi aplicada.
+  - `is_promotional` recebe a flag do LLM com origem `llm` antes das regras, a não ser que a origem seja `manager`.
+  - `published_error` segue a interpretação mais recente, porque o LLM vê o histórico inteiro.
+  - As dependências do LLM são acrescentadas sem duplicar (comparação sem acento e sem caixa), e as existentes ficam com o status que já tinham.
+  - Os `files` do LLM entram em `required_files` com origem `llm`, sem duplicar.
+  - Nem o merge nem uma nova interpretação removem dependências ou arquivos de outras origens.
+- **Eventos de audit.**
+  - `message_received` (user);
+  - `interpretation` (llm, com provedor e saída);
+  - `classification` (llm);
+  - `guardrail_discard` e `guardrail_adjust`;
+  - `field_registered`, só quando o valor ou a origem mudou;
+  - `rule_applied`;
+  - `briefing_score`;
+  - `status_transition`.
+- **`revalidate`.** Roda regras, validação e estado sem chamar o LLM. Será usado por `POST /validate`, pelo PATCH e pela confirmação de tipo (T15).
