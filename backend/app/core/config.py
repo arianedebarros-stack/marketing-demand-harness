@@ -237,6 +237,31 @@ class UrgencyStep(_Strict):
     score: float = Field(ge=0, le=100)
 
 
+class ImpactRules(_Strict):
+    promotional_min: float = Field(ge=0, le=100)
+    published_error: float = Field(ge=0, le=100)
+
+
+class RiskRules(_Strict):
+    published_error: float = Field(ge=0, le=100)
+    promotional_with_price: float = Field(ge=0, le=100)
+    with_supplier: float = Field(ge=0, le=100)
+    default: float = Field(ge=0, le=100)
+
+
+class ElevationRules(_Strict):
+    """Prazo < ``critical_under_hours`` → Crítica; ≤ ``high_max_hours`` → no mínimo Alta."""
+
+    critical_under_hours: float = Field(ge=0)
+    high_max_hours: float = Field(ge=0)
+
+    @model_validator(mode="after")
+    def _critical_before_high(self) -> Self:
+        if self.critical_under_hours > self.high_max_hours:
+            raise ValueError("critical_under_hours deve ser menor ou igual a high_max_hours")
+        return self
+
+
 class PrioritiesConfig(_Strict):
     weights: PriorityWeights
     bands: list[PriorityBand] = Field(min_length=1)
@@ -244,6 +269,9 @@ class PrioritiesConfig(_Strict):
     urgency_without_deadline: float = Field(ge=0, le=100)
     dependency_scores: list[float] = Field(min_length=1)
     deadline_hour: int = Field(ge=0, le=23)
+    impact: ImpactRules
+    risk: RiskRules
+    elevation: ElevationRules
 
     @model_validator(mode="after")
     def _ordered_tables(self) -> Self:

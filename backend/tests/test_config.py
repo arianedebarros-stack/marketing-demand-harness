@@ -66,6 +66,10 @@ def test_loads_all_real_configs() -> None:
     assert config.priorities.bands[0].level == "Crítica"
     assert config.priorities.urgency_by_hours[-1].max_hours is None
     assert config.priorities.deadline_hour == 18
+    assert config.priorities.impact.promotional_min == 80
+    assert config.priorities.risk.with_supplier == 50
+    assert config.priorities.elevation.critical_under_hours == 24
+    assert config.priorities.elevation.high_max_hours == 72
 
     assert "planilha" in config.guardrails.attachment_words
     assert config.guardrails.product_min_word_length == 4
@@ -134,6 +138,16 @@ def test_unknown_key_is_rejected(config_copy: Path) -> None:
             "priorities.json",
             lambda d: d.update(deadline_hour=24),
             "deadline_hour",
+        ),
+        (
+            "priorities.json",
+            lambda d: d["risk"].update(default=101),
+            "risk.default",
+        ),
+        (
+            "priorities.json",
+            lambda d: d["elevation"].update(critical_under_hours=80),
+            "critical_under_hours",
         ),
         (
             "task_types.json",

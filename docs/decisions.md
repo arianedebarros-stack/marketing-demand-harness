@@ -151,3 +151,21 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - `briefing_score`;
   - `status_transition`.
 - **`revalidate`.** Roda regras, validação e estado sem chamar o LLM. Será usado por `POST /validate`, pelo PATCH e pela confirmação de tipo (T15).
+
+**D32 · Detalhes do Priority Engine** (2026-11-17, T11; os dois primeiros pontos foram aprovados pela autora antes da implementação).
+- **Risco 50 vale para qualquer demanda com fornecedor.** Os critérios são avaliados nesta ordem, e vale o primeiro que se aplicar:
+  - `published_error` dá 100;
+  - promocional com preço preenchido dá 70 (inclusive "Conforme planilha anexada", como no caso 02);
+  - qualquer demanda com fornecedor dá 50, inclusive um vídeo não promocional;
+  - o resto dá 30.
+  
+  Um preço numa demanda que não é promocional não conta.
+- **Limites da urgência literais.** A primeira faixa é estrita (< 24 h) e as demais incluem o limite (≤ 48, ≤ 120, ≤ 240). Com o prazo em 24 h exatas, a urgência é 90 e não há elevação para Crítica. Um prazo vencido dá horas negativas, o que conta como < 24 h: urgência 100 e Crítica.
+- **Valores em `config/priorities.json`.** Ficam lá `impact` (`promotional_min` 80, `published_error` 100), `risk` (100, 70, 50, 30) e `elevation` (`critical_under_hours` 24, `high_max_hours` 72). O loader exige `critical_under_hours ≤ high_max_hours`.
+- **Impacto.** Vem de `types[t].impact`, e um tipo vazio ou desconhecido usa o de "Outro". `published_error` dá 100. Uma demanda promocional usa o maior valor entre o impacto do tipo e 80 (Evento continua 85).
+- **Horas até o prazo.** O prazo conta às `deadline_hour` (18h) no fuso `APP_TIMEZONE`. Um "agora" com fuso é convertido; um "agora" sem fuso é tratado como horário local. As horas são arredondadas a 2 casas.
+- **"Evento hoje"** é `event_date` igual à data local de hoje.
+- **Elevação nunca rebaixa.** As regras de elevação só sobem a faixa calculada pela pontuação. O score é arredondado a 2 casas.
+- **Trava do gestor.** Com `priority_locked`, o engine devolve a prioridade e o score atuais, sem fatores, com o motivo "Prioridade definida pelo gestor; não recalculada.", e `locked = true`.
+- **Motivos.** Os motivos (`reasons`) vêm em pt-BR, com vírgula decimal. Há uma linha por fator, uma linha com a pontuação e a faixa, e uma linha para cada elevação aplicada. O evento de audit é `priority_calculated`, ou `priority_locked` quando o gestor travou a prioridade.
+- **Integração com o pipeline.** O engine só devolve o resultado. Gravar `priority` e `priority_score` na demanda e rodar a triagem automática depois de `READY_FOR_TRIAGE` (D01) fica para quando a T12 e a T13 existirem.

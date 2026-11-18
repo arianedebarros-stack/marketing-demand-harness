@@ -204,6 +204,7 @@ Priority Score = urgência×0,40 + impacto×0,30 + dependências×0,15 + risco×
 - Faixa pela pontuação (bands). **Regras que elevam** a faixa (nunca rebaixam): `published_error` ou prazo < 24 h ou evento hoje → Crítica; prazo ≤ 72 h → mínimo Alta.
 - A palavra "urgente" não altera nada. `priority_locked = true` (definida pelo gestor) → engine não recalcula.
 - Retorna `{score, level, factors, reasons[]}`.
+- Valores de impacto, risco e elevação em `priorities.json` (`impact`, `risk`, `elevation`). Risco 50 vale para qualquer demanda com fornecedor; urgência < 24 é estrita e as demais faixas incluem o limite (D32).
 
 ### 8.6 Assignment Engine (`engines/assignment.py`)
 

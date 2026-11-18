@@ -20,7 +20,7 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 
 ## Fase 2 — Etapa 2 do MVP (triagem e aprovação)
 
-- [ ] **T11 · Priority Engine** — `engines/priority.py` (§8.5). *Aceite:* AC09 (76,5 → Alta; <24 h → Crítica; "urgente" não altera; `priority_locked` respeitado; `published_error=true` → impacto 100, risco 100 e Crítica, testado com demanda/interpretação montada diretamente, pois o Fake não preenche esse campo — D26).
+- [x] **T11 · Priority Engine** — `engines/priority.py` (§8.5). *Aceite:* AC09 (76,5 → Alta; <24 h → Crítica; "urgente" não altera; `priority_locked` respeitado; `published_error=true` → impacto 100, risco 100 e Crítica, testado com demanda/interpretação montada diretamente, pois o Fake não preenche esse campo — D26).
 - [ ] **T12 · Assignment Engine** — `engines/assignment.py` (§8.6). *Aceite:* AC11.
 - [ ] **T13 · Dependências e duplicidade** — `engines/dependency.py`, `engines/dedupe.py` (§8.7, §8.8). *Aceite:* AC10 e caso 05.
 - [ ] **T14 · Banco e auditoria** — models SQLAlchemy + Alembic (§10), `services/audit.py` (§15). *Aceite:* AC15; migração sobe do zero.
