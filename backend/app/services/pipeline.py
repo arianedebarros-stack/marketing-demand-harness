@@ -214,16 +214,18 @@ def _merge(
 def _drop_stale_dimensions(
     before: Demand, merged: Demand, last_message: str, events: list[AuditEvent]
 ) -> Demand:
-    """Troca de formato apaga a dimensão de origem ``message`` que a mensagem nova não repete.
+    """Troca de formato apaga a dimensão de ``message``/``llm`` que a mensagem nova não repete.
 
     Assim o Rule Engine recalcula a dimensão para o formato novo (D28, D31). Formato que aparece
-    pela primeira vez não é troca. Dimensão do gestor (ou de outra origem) nunca é tocada.
+    pela primeira vez não é troca. Dimensão do gestor nunca é tocada; a de regra já é
+    recalculada pelo próprio Rule Engine.
     """
     old_format, new_format = before.format, merged.format
     if not old_format or not new_format or normalize(old_format) == normalize(new_format):
         return merged
     dimensions = merged.dimensions
-    if not dimensions or merged.field_origin.get("dimensions") is not MESSAGE:
+    dims_origin = merged.field_origin.get("dimensions")
+    if not dimensions or dims_origin not in (MESSAGE, LLM):
         return merged
     if digit_groups(dimensions) <= digit_groups(last_message):
         return merged  # a mensagem nova traz (ou repete) a dimensão
@@ -234,7 +236,7 @@ def _drop_stale_dimensions(
         AuditEvent(
             "harness",
             "field_cleared",
-            previous_value=_field_payload("dimensions", dimensions, MESSAGE),
+            previous_value=_field_payload("dimensions", dimensions, dims_origin),
             new_value={"field": "dimensions", "reason": "format_changed"},
         )
     )

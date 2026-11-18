@@ -141,11 +141,13 @@ TASK_CREATED com dependência pendente → BLOCKED (flag da tarefa; volta a TASK
   "classification": { "type": "Arte", "confidence": 0.96 },
   "extracted": { "brand": "Construjá", "supplier": "Krona", "deadline": "2026-10-20" },
   "is_promotional": true,
-  "published_error": false,     // opcional: ausente/null mantém o valor anterior (D31)
+  "published_error": false,
   "dependencies": [{ "dependency": "Aprovação de preço", "owner": "Compras", "status": "Pendente" }],
   "files": ["Planilha de preços"]
 }
 ```
+
+`published_error` é opcional: ausente ou `null` mantém o valor anterior da demanda; só `true` ou `false` explícito muda a flag (D31).
 
 Regras do prompt: nunca inventar; campo ausente não aparece; datas em ISO calculadas a partir de hoje; "urgente" não é prazo; vigência ≠ prazo; fornecedor vai em `supplier`, nunca em `brand`; só dependências explícitas.
 

@@ -501,6 +501,38 @@ def test_format_change_drops_message_dimensions() -> None:
     assert actions.index("field_cleared") < actions.index("rule_applied")
 
 
+@pytest.mark.parametrize(
+    ("last_message", "kept"),
+    [("Troca para stories.", False), ("Troca para stories 1080x1350.", True)],
+)
+def test_format_change_drops_llm_dimensions(last_message: str, kept: bool) -> None:
+    """D31: a dimensão inferida pelo LLM também sai na troca de formato, salvo se repetida."""
+    demand = _new().model_copy(
+        update={
+            "status": S.NEEDS_INFORMATION,
+            "task_type": "Arte",
+            "classification_confidence": 0.92,
+            "channel": "Instagram",
+            "format": "Feed",
+            "dimensions": "1080 × 1350 px",
+            "field_origin": {"task_type": L, "channel": R, "format": M, "dimensions": L},
+        }
+    )
+    llm = ScriptedLLM(_interp({"format": "Stories"}))
+
+    result = _run(demand, [last_message], llm)
+
+    if kept:
+        assert result.demand.dimensions == "1080 × 1350 px"
+        assert result.demand.field_origin["dimensions"] is L
+        assert "field_cleared" not in _actions(result.events)
+    else:
+        assert result.demand.dimensions == "1080 × 1920 px"
+        assert result.demand.field_origin["dimensions"] is R
+        cleared = next(e for e in result.events if e.action == "field_cleared")
+        assert cleared.previous_value["origin"] == "llm"
+
+
 def test_format_change_with_new_dimensions_keeps_them() -> None:
     result = _format_change("Troca para stories 1080x1920.")
 
