@@ -237,7 +237,10 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 - **Testes com banco.**
   - Usam bancos próprios (`<banco>_test` e `<banco>_migration_test`), criados e apagados pelos testes. A origem é `DATABASE_URL` ou, se definida, `TEST_DATABASE_URL`.
   - Cada teste roda numa transação desfeita no fim.
-  - Sem Postgres no ar, esses testes são pulados com a mensagem "rode `make db`". `make test` completo pressupõe `make db`.
+  - **`make test` sobe o banco sozinho** (revisto pela autora em 2026-11-23, na revisão da T14; substitui "`make test` completo pressupõe `make db`"). O alvo `test` depende de `db`, e `make db` passou a usar `docker compose up -d --wait db`, que espera o healthcheck do Postgres.
+  - Se mesmo assim o Postgres não estiver acessível (por exemplo, pytest rodado direto, sem o Makefile), os testes de banco são pulados com o motivo "rode `make db`".
+  - O `make test` usa `pytest -rs`, que lista o motivo de cada teste pulado.
+  - A última linha da saída é sempre `Testes pulados: N`, inclusive com N = 0, impressa por um hook em `tests/conftest.py` depois do resultado final do pytest. Ela fica em destaque vermelho quando N > 0, para não confundir teste pulado com teste passado.
 - **`services/audit.py`.**
   - `record` grava uma linha.
   - `record_events` grava os `AuditEvent` do pipeline, em ordem.

@@ -107,3 +107,15 @@ def session(engine: Engine) -> Iterator[Session]:
         finally:
             db.close()
             transaction.rollback()
+
+
+def pytest_unconfigure(config: pytest.Config) -> None:
+    """Última linha da saída: quantos testes foram pulados (não confundir pulado com passado)."""
+    reporter = config.pluginmanager.get_plugin("terminalreporter")
+    if reporter is None:
+        return
+    skipped = len(reporter.stats.get("skipped", []))
+    message = f"Testes pulados: {skipped}"
+    if skipped:
+        message += " (motivos na lista SKIPPED acima; testes de banco precisam de `make db`)"
+    reporter.write_sep("=", message, bold=True, red=bool(skipped), green=not skipped)

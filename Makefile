@@ -17,7 +17,7 @@ setup-frontend:
 	cd $(FRONTEND) && npm install
 
 db:
-	docker compose up -d db
+	docker compose up -d --wait db
 
 migrate:
 	cd $(BACKEND) && $(BIN)/alembic upgrade head
@@ -31,8 +31,8 @@ dev-backend:
 dev-frontend:
 	cd $(FRONTEND) && npm run dev -- --port 3000
 
-test:
-	cd $(BACKEND) && $(BIN)/pytest --cov --cov-report=term-missing
+test: db
+	cd $(BACKEND) && $(BIN)/pytest -rs --cov --cov-report=term-missing
 
 lint:
 	cd $(BACKEND) && $(BIN)/ruff check . && $(BIN)/ruff format --check . && $(BIN)/mypy app tests
