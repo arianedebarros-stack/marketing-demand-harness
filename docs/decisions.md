@@ -212,3 +212,4 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - A primeira é a `duplicate` que vai no 409.
   - O evento de audit é `duplicate_found` ou `no_duplicate`.
 - **Entrada.** O engine recebe a lista de tarefas existentes (`ExistingTask`), lida do banco por quem chama, e o título calculado por `build_title`.
+- **Triagem automática na T15** (2026-11-23, revisão da T13, decidido pela autora). Os engines da T11–T13 ficam prontos sem rodar no pipeline, porque a triagem precisa das tarefas abertas, que vêm do banco (T14). A T15 liga a triagem automática depois de `READY_FOR_TRIAGE` (D01): prioridade, responsável, dependências e duplicidade são gravados na demanda, e a demanda segue para `TRIAGED` e `PENDING_APPROVAL`. O aceite da T15 inclui um teste de integração que vai da mensagem até `PENDING_APPROVAL`. Isso completa a D31 e as notas de integração da D32 e da D33.
