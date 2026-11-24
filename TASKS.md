@@ -29,7 +29,7 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 ## Fase 3 — LLM real, integração e interface
 
 - [x] **T16 · AnthropicClient** — `llm/anthropic_client.py` com tool `register_interpretation` e `input_schema` gerado de `LLMInterpretation`; prompt em `llm/prompts.py` (§8.1); fallback para Fake se `LLM_FALLBACK=true`. *Aceite:* teste com SDK mockado; rodada manual documentada no README.
-- [ ] **T17 · Task manager** — `integrations/asana.py` e escolha por `TASK_MANAGER` (§11); a interface e o `integrations/local.py` já entraram na T15 (D36). *Aceite:* AC14 com Asana mockado (respx).
+- [x] **T17 · Task manager** — `integrations/asana.py` e escolha por `TASK_MANAGER` (§11); a interface e o `integrations/local.py` já entraram na T15 (D36). *Aceite:* AC14 com Asana mockado (respx).
 - [ ] **T18 · Frontend: Nova demanda + Ficha** — telas 1 e 2 da §13 consumindo a API.
 - [ ] **T19 · Frontend: Approval Gate, Quadro e Registro** — telas 3, 4 e 5 da §13. *Aceite:* caso 06 executado ponta a ponta na UI.
 - [ ] **T20 · Avaliação de classificação** — `tests/data/classification.jsonl` com ≥ 20 frases rotuladas; teste mede acurácia ≥ 90% com o Fake; script `make eval-llm` mede com o LLM real. *Aceite:* AC02.

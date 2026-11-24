@@ -335,3 +335,18 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - As mensagens ficam entre `<mensagens_do_solicitante>` e são tratadas como dados, não como instruções.
 - **Credenciais e tempo limite.** A chave vem de `ANTHROPIC_API_KEY` no `.env`. Sem ela, o SDK procura as credenciais sozinho (variável de ambiente ou perfil do `ant`). O tempo limite vem de `LLM_TIMEOUT_SECONDS` (padrão 60 s), em vez dos 10 minutos do SDK, porque a interpretação acontece com o solicitante esperando no chat. O SDK continua com 2 novas tentativas automáticas.
 - **Rodada manual.** `make llm-smoke` (ou `make llm-smoke MSG="..."`) chama a API real uma vez, sem fallback, e mostra a interpretação e os descartes dos guardrails. O script (`app/cli/llm_smoke.py`) nunca imprime a chave e é testado com o SDK simulado. Instruções no README.
+
+**D38 · Detalhes do AsanaTaskManager** (2026-11-23, T17).
+- **Padrão local.** `TASK_MANAGER` continua `local`, com ids `MKT-<n>`. O Asana só é usado com `TASK_MANAGER=asana`. A escolha fica em `api/deps.py` (`build_task_manager`).
+- **Credenciais verificadas ao subir.** Com `TASK_MANAGER=asana`, as settings exigem `ASANA_TOKEN` e `ASANA_PROJECT_GID`; faltando um deles, o erro aparece ao carregar a configuração, e não na primeira aprovação. O token é `SecretStr` e nunca aparece em mensagens, logs nem no `repr` do conector.
+- **Requisição (§11).**
+  - `POST https://app.asana.com/api/1.0/tasks` com `{"data": {"name": título, "notes": briefing, "due_on": prazo ISO, "projects": [ASANA_PROJECT_GID]}}` e `Authorization: Bearer`. `due_on` só vai quando há prazo.
+  - O `gid` devolvido vira `external_task_id`.
+  - A tarefa também fica na tabela `tasks`, como no conector local, para o quadro, a carga e a duplicidade.
+  - O cliente HTTP é o `httpx`, com tempo limite de 20 s, porque a SPEC pede testes com `respx`, que intercepta o `httpx`.
+- **Sem nova tentativa automática.**
+  - Um `POST` repetido depois de um timeout pode criar a tarefa duas vezes no Asana. Por isso, qualquer falha (resposta 4xx/5xx, erro de conexão, resposta sem `gid`) vira `AsanaError`, com o status e as mensagens de `errors[]` do Asana.
+  - A partir daí vale a D04: nada da tarefa fica gravado, a demanda fica em `APPROVED`, a API responde 502 e um novo `approve` tenta de novo.
+  - Risco que fica: se o Asana criar a tarefa e a resposta se perder (timeout depois do `POST`), o novo `approve` cria uma segunda tarefa lá. Isso só se evita consultando o Asana antes de repetir, o que fica fora desta entrega.
+- **Fora do escopo da §11.** Responsável no Asana (`assignee`), seções, tags e campos personalizados não são enviados. O responsável continua no briefing (linha RESPONSÁVEL).
+- **Testes.** Todos usam `respx`, que falha o teste em qualquer requisição sem rota simulada, e um token falso. O AC14 está coberto pela API: a aprovação cria a tarefa no Asana simulado com o `gid` como `external_task_id`, e uma falha deixa a demanda em `APPROVED` até a nova tentativa.

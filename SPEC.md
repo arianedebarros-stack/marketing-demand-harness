@@ -266,7 +266,7 @@ Config de marcas/tipos/equipe/prioridade/guardrails/duplicidade permanece nos 6 
 
 Interface `TaskManagerConnector.create_task(task) -> external_id`.
 - `LocalTaskManager`: grava em `tasks` e devolve `MKT-<n>`.
-- `AsanaTaskManager`: `POST https://app.asana.com/api/1.0/tasks` com `{"data": {"name", "notes": briefing, "due_on", "projects": [ASANA_PROJECT_GID]}}`, header `Authorization: Bearer ASANA_TOKEN`. Salva o `gid` retornado em `external_task_id`. Testes usam mock HTTP (respx); **nunca** chamar a API real nos testes.
+- `AsanaTaskManager`: `POST https://app.asana.com/api/1.0/tasks` com `{"data": {"name", "notes": briefing, "due_on", "projects": [ASANA_PROJECT_GID]}}`, header `Authorization: Bearer ASANA_TOKEN`. Salva o `gid` retornado em `external_task_id`. Testes usam mock HTTP (respx); **nunca** chamar a API real nos testes. Padrão `TASK_MANAGER=local`; sem nova tentativa automática no Asana; credenciais exigidas ao subir (D38).
 
 ## 12. FakeLLMClient (interpretação por regras)
 

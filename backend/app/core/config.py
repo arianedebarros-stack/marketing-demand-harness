@@ -74,6 +74,15 @@ class Settings(BaseSettings):
             return None
         return value
 
+    @model_validator(mode="after")
+    def _asana_needs_credentials(self) -> Self:
+        """D38: com TASK_MANAGER=asana, a falta de credenciais aparece ao subir, não no approve."""
+        if self.task_manager == "asana" and (
+            self.asana_token is None or self.asana_project_gid is None
+        ):
+            raise ValueError("TASK_MANAGER=asana exige ASANA_TOKEN e ASANA_PROJECT_GID")
+        return self
+
     @field_validator("app_timezone")
     @classmethod
     def _valid_timezone(cls, value: str) -> str:

@@ -23,9 +23,19 @@ make dev
 make test
 ```
 
-## Rodada manual com o LLM real (T16)
+## LLM real da Anthropic (opcional)
 
-Os testes automáticos nunca chamam a API da Anthropic. Para testar com o modelo de verdade:
+O sistema funciona sem chave da API da Anthropic: a interpretação usa o `FakeLLMClient`, que segue regras fixas, e os testes automáticos nunca chamam a API. Sem chave, deixe no `.env`:
+
+```
+LLM_PROVIDER=fake
+```
+
+Com `LLM_PROVIDER=anthropic` e sem chave, o sistema também funciona. Mas cada mensagem tenta a API, falha e cai no Fake, e isso fica registrado como `llm_fallback` no audit.
+
+### Rodada manual com o LLM real (T16)
+
+Quando houver uma chave, para testar com o modelo de verdade:
 
 1. No `.env`, preencha a sua chave e confira o modelo:
 
@@ -43,6 +53,23 @@ Os testes automáticos nunca chamam a API da Anthropic. Para testar com o modelo
    ```
 
 O comando faz **uma** chamada à API (com custo), sem fallback para o Fake. Ele mostra o modelo, a interpretação validada pelo schema e o que os guardrails descartariam. A chave nunca é impressa. Se a API recusar a credencial, a mensagem pede para conferir `ANTHROPIC_API_KEY`. Detalhes em `docs/decisions.md` (D17, D37).
+
+## Asana (opcional)
+
+Por padrão (`TASK_MANAGER=local`), as tarefas aprovadas ficam só no próprio sistema, com ids `MKT-<n>`. Os testes nunca chamam o Asana: usam respostas simuladas (respx) e um token falso.
+
+Para criar as tarefas aprovadas também no Asana, ponha no `.env`:
+
+```
+TASK_MANAGER=asana
+ASANA_TOKEN=<Personal Access Token do Asana>
+ASANA_PROJECT_GID=<gid do projeto>
+```
+
+- **Token:** crie um Personal Access Token no Asana (Meu perfil → Configurações → Apps → Console do desenvolvedor). A conta dona do token precisa ter acesso ao projeto.
+- **`gid` do projeto:** é o número longo que aparece na URL do projeto no Asana.
+- **Sem uma das duas variáveis:** com `TASK_MANAGER=asana`, a aplicação não sobe e mostra um erro claro.
+- **Se o Asana falhar:** a demanda fica em `APPROVED`, a API responde 502 e basta aprovar de novo (D04, D38).
 
 ## Status
 
