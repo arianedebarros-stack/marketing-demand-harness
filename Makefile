@@ -4,7 +4,7 @@ FRONTEND := frontend
 VENV := $(BACKEND)/.venv
 BIN := $(abspath $(VENV))/bin
 
-.PHONY: setup setup-backend setup-frontend db migrate dev dev-backend dev-frontend test lint
+.PHONY: setup setup-backend setup-frontend db migrate dev dev-backend dev-frontend test lint llm-smoke
 
 setup: setup-backend setup-frontend
 
@@ -37,3 +37,8 @@ test: db
 lint:
 	cd $(BACKEND) && $(BIN)/ruff check . && $(BIN)/ruff format --check . && $(BIN)/mypy app tests
 	cd $(FRONTEND) && npm run lint
+
+# Rodada manual com o LLM real (T16): usa ANTHROPIC_API_KEY e LLM_MODEL do .env, sem fallback.
+# Uso: make llm-smoke   ou   make llm-smoke MSG="Faz uma arte da Ferjá para sexta"
+llm-smoke:
+	cd $(BACKEND) && $(BIN)/python -m app.cli.llm_smoke "$(MSG)"

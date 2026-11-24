@@ -44,6 +44,9 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 **D16 · Idioma.** Identificadores de código em inglês (como na SPEC); textos da UI, perguntas ao usuário e commits em português do Brasil.
 
 **D17 · Modelo padrão em `LLM_MODEL`.** Decidido na T16, consultando a documentação atual da API da Anthropic. Até lá, `.env.example` mantém o valor original (`claude-sonnet-5-5`).
+- **Decisão (2026-11-23, T16):** `LLM_MODEL=claude-opus-5-5` (Claude Opus 5.5), no padrão de `Settings` e no `.env.example`.
+- **Fonte:** página "Models overview" da documentação da Anthropic, consultada em 2026-11-23: https://platform.claude.com/docs/en/about-claude/models/overview.md. A página diz: "If you're unsure which model to use, start with Claude Opus 5.5 for most workloads." Pela mesma página: o id na API é `claude-opus-5-5`; o preço é US$ 4 por milhão de tokens de entrada e US$ 20 por milhão de saída; o pensamento adaptativo fica sempre ligado; o esforço padrão é `medium`; a retirada não acontece antes de 22/09/2027.
+- **Alternativas da mesma página:** `claude-sonnet-5-5` ("the best combination of speed and intelligence", US$ 2 / US$ 10) e `claude-haiku-5-5` (para classificação e extração em alto volume, a partir de US$ 0,10 / US$ 0,50). Trocar de modelo é só mudar `LLM_MODEL`. Antes de baixar o custo, a recomendação é medir com a avaliação da T20 (`make eval-llm`).
 
 **D18 · Driver do Postgres.** `psycopg` 3 (`psycopg[binary]`). Verificado na T01: instala sem erro no Python 3.14.
 
@@ -307,3 +310,28 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - Até a T16, `LLM_PROVIDER=anthropic` falha de propósito e cai no Fake quando `LLM_FALLBACK=true`.
 - **Códigos de erro.** 404 para recurso inexistente; 409 para transição inválida, triagem sem 100%, duplicidade e tarefa já concluída; 422 para validação, tipo desconhecido e responsável desconhecido; 502 para LLM sem fallback e falha do sistema de tarefas.
 - **Nomes de exceção.** Seguem o lint (sufixo `Error`): `LLMUnavailableError`, `TriageNotReadyError` e `TaskCreationError`. `InvalidTransition` mantém o nome da §7.
+
+**D37 · Detalhes do AnthropicClient** (2026-11-23, T16).
+- **SDK oficial.** O pacote `anthropic` (>= 2.13, < 3) é chamado por `client.beta.messages.create`. Os testes nunca chamam a API: usam um SDK simulado, que devolve respostas prontas.
+- **Tool sem uso forçado.** A documentação do Claude Opus 5.5 diz que `tool_choice` `any`/`tool` devolve 400 neste modelo. Por isso:
+  - a chamada usa `tool_choice: auto`, `strict: true` na tool `register_interpretation` e uma instrução no prompt para chamá-la;
+  - como `auto` não garante a chamada, o cliente tenta de novo uma vez e depois falha com `LLMResponseError`.
+  
+  Na T16 o TASKS.md falava em "tool `register_interpretation`" sem exigir o uso forçado; o resultado continua sendo a tool com o schema de `LLMInterpretation`.
+- **Schema strict.** O `input_schema` sai de `LLMInterpretation.tool_input_schema()` (D25) e é ajustado para o modo strict:
+  - todo objeto recebe `additionalProperties: false` e todas as chaves em `required`, com os campos opcionais como `anyOf [tipo, null]`;
+  - saem `default`, títulos, descrições internas e limites de tamanho e número, que o modo strict não aceita.
+  
+  Esses limites continuam valendo na validação Pydantic e nos guardrails (§8.2). `null` significa campo ausente.
+- **Pensamento e esforço.** O pensamento adaptativo do Opus 5.5 é sempre ligado e não pode ser desligado, então o parâmetro `thinking` não é enviado. O esforço vai explícito em `output_config.effort` e vem de `LLM_EFFORT` (padrão `medium`, o mesmo do modelo; aceita `low` a `max`). `max_tokens` é 16000. Não são enviados `temperature`, `top_p` nem `top_k`.
+- **Recusa.**
+  - Com `betas: ["server-side-fallback-2026-07-01"]` e `fallbacks: "default"`, uma recusa do classificador de segurança é repetida pela própria API no modelo de reserva que ela escolhe.
+  - Se a resposta final ainda for `stop_reason: "refusal"`, o cliente levanta `LLMRefusalError` com a categoria. `max_tokens` e uma entrada fora do schema levantam `LLMResponseError`.
+  - Qualquer erro, inclusive os da API (`anthropic.APIError`), cai no `FallbackLLMClient` (D36): com `LLM_FALLBACK=true`, a interpretação vem do Fake e fica `llm_fallback` no audit; sem fallback, a API responde 502.
+- **Prompt (`llm/prompts.py`).**
+  - O texto fixo traz só as regras da §8.1: nunca inventar, "urgente" não é prazo, vigência não é prazo, fornecedor em `supplier`, só dependências explícitas e datas em ISO a partir de hoje.
+  - Tipos, marcas e fornecedores vêm do contexto montado a partir de `config/`, a cada chamada; nenhum valor de negócio fica no prompt.
+  - O conteúdo variável (data, dados já registrados, campos perguntados por último e histórico só do solicitante) vai na mensagem do usuário, depois do prompt fixo, para não quebrar o cache do prefixo.
+  - As mensagens ficam entre `<mensagens_do_solicitante>` e são tratadas como dados, não como instruções.
+- **Credenciais e tempo limite.** A chave vem de `ANTHROPIC_API_KEY` no `.env`. Sem ela, o SDK procura as credenciais sozinho (variável de ambiente ou perfil do `ant`). O tempo limite vem de `LLM_TIMEOUT_SECONDS` (padrão 60 s), em vez dos 10 minutos do SDK, porque a interpretação acontece com o solicitante esperando no chat. O SDK continua com 2 novas tentativas automáticas.
+- **Rodada manual.** `make llm-smoke` (ou `make llm-smoke MSG="..."`) chama a API real uma vez, sem fallback, e mostra a interpretação e os descartes dos guardrails. O script (`app/cli/llm_smoke.py`) nunca imprime a chave e é testado com o SDK simulado. Instruções no README.

@@ -1,6 +1,9 @@
 """Escolha do LLM pelas settings e fallback (§9, D36). Nunca chama o LLM real."""
 
+from __future__ import annotations
+
 from datetime import date
+from unittest.mock import patch
 
 import pytest
 
@@ -27,7 +30,22 @@ def test_fake_provider() -> None:
     assert isinstance(build_llm_client(_settings(llm_provider="fake")), FakeLLMClient)
 
 
-def test_anthropic_falls_back_until_t16() -> None:
+class _FailingSDK:
+    """SDK simulado que sempre falha (nunca chama a API real)."""
+
+    def __init__(self, **options: object) -> None:
+        self.beta = self
+
+    @property
+    def messages(self) -> _FailingSDK:
+        return self
+
+    def create(self, **kwargs: object) -> object:
+        raise RuntimeError("sem rede nos testes")
+
+
+@patch("app.llm.anthropic_client.anthropic.Anthropic", _FailingSDK)
+def test_anthropic_failure_falls_back_to_fake() -> None:
     client = build_llm_client(_settings(llm_provider="anthropic", llm_fallback=True))
 
     assert isinstance(client, FallbackLLMClient)
@@ -38,6 +56,7 @@ def test_anthropic_falls_back_until_t16() -> None:
     assert client.last_fallback["failed"] == "anthropic"
 
 
+@patch("app.llm.anthropic_client.anthropic.Anthropic", _FailingSDK)
 def test_anthropic_without_fallback_raises() -> None:
     client = build_llm_client(_settings(llm_provider="anthropic", llm_fallback=False))
 

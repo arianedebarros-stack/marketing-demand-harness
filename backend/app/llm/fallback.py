@@ -30,6 +30,10 @@ class FallbackLLMClient:
         self.last_fallback: dict[str, Any] | None = None
 
     @property
+    def primary(self) -> LLMClient:
+        return self._primary
+
+    @property
     def provider(self) -> str:
         """Provedor que de fato respondeu a última interpretação."""
         return self._used.provider

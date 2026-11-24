@@ -56,9 +56,11 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://harness:harness@localhost:5432/harness"
     anthropic_api_key: SecretStr | None = None
-    llm_model: str = "claude-sonnet-5-5"
+    llm_model: str = "claude-opus-5-5"  # D17
     llm_provider: Literal["anthropic", "fake"] = "anthropic"
     llm_fallback: bool = True
+    llm_effort: Literal["low", "medium", "high", "xhigh", "max"] = "medium"  # D37
+    llm_timeout_seconds: float = Field(default=60.0, gt=0)
     task_manager: Literal["local", "asana"] = "local"
     asana_token: SecretStr | None = None
     asana_project_gid: str | None = None
