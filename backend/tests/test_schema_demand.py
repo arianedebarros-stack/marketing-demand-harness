@@ -9,6 +9,7 @@ from app.schemas.demand import (
     EXTRACTABLE_FIELDS,
     Demand,
     Dependency,
+    DuplicateCandidate,
     FieldOrigin,
     RequestStatus,
     RequiredFile,
@@ -165,3 +166,50 @@ def test_required_file_keeps_origin() -> None:
 def test_required_file_rejects_invalid_items(item: object) -> None:
     with pytest.raises(ValidationError):
         _demand(required_files=[item])
+
+
+# --- Duplicidade (D35) -----------------------------------------------------------------
+
+
+def test_duplicate_of_defaults_to_none() -> None:
+    assert _demand().duplicate_of is None
+
+
+def test_duplicate_of_round_trips_through_json() -> None:
+    demand = _demand(
+        duplicate_of={
+            "task_id": 42,
+            "title": "Arte | Promoção Krona | Construjá",
+            "criteria": ["same_brand_type_supplier", "similar_title"],
+            "jaccard": 1.0,
+        }
+    )
+
+    assert demand.duplicate_of == DuplicateCandidate(
+        task_id=42,
+        title="Arte | Promoção Krona | Construjá",
+        criteria=["same_brand_type_supplier", "similar_title"],
+        jaccard=1.0,
+    )
+    assert Demand.model_validate_json(demand.model_dump_json()) == demand
+
+
+@pytest.mark.parametrize(
+    "candidate",
+    [
+        {"task_id": 1, "title": "X", "criteria": [], "jaccard": 0.5},
+        {"task_id": 1, "title": "X", "criteria": ["palpite"], "jaccard": 0.5},
+        {"task_id": 1, "title": "", "criteria": ["similar_title"], "jaccard": 0.8},
+        {"task_id": 1, "title": "X", "criteria": ["similar_title"], "jaccard": 1.2},
+    ],
+)
+def test_duplicate_of_rejects_invalid(candidate: dict[str, object]) -> None:
+    with pytest.raises(ValidationError):
+        _demand(duplicate_of=candidate)
+
+
+def test_duplicate_of_is_not_editable_by_patch() -> None:
+    from app.schemas.api import DemandPatch
+
+    with pytest.raises(ValidationError):
+        DemandPatch.model_validate({"duplicate_of": None})

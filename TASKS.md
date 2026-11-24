@@ -23,7 +23,7 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 - [x] **T11 · Priority Engine** — `engines/priority.py` (§8.5). *Aceite:* AC09 (76,5 → Alta; <24 h → Crítica; "urgente" não altera; `priority_locked` respeitado; `published_error=true` → impacto 100, risco 100 e Crítica, testado com demanda/interpretação montada diretamente, pois o Fake não preenche esse campo — D26).
 - [x] **T12 · Assignment Engine** — `engines/assignment.py` (§8.6). *Aceite:* AC11.
 - [x] **T13 · Dependências e duplicidade** — `engines/dependency.py`, `engines/dedupe.py` (§8.7, §8.8). *Aceite:* AC10 e caso 05.
-- [ ] **T14 · Banco e auditoria** — models SQLAlchemy + Alembic (§10), `services/audit.py` (§15). *Aceite:* AC15; migração sobe do zero.
+- [x] **T14 · Banco e auditoria** — models SQLAlchemy + Alembic (§10), `services/audit.py` (§15). *Aceite:* AC15; migração sobe do zero.
 - [ ] **T15 · API** — endpoints da §9 com TestClient. *Aceite:* AC01, AC13; casos 01–06 como testes E2E com FakeLLMClient; triagem automática ligada depois de `READY_FOR_TRIAGE` (D01, D34): prioridade, responsável, dependências e duplicidade gravados na demanda, com teste de integração da mensagem até `PENDING_APPROVAL`.
 
 ## Fase 3 — LLM real, integração e interface

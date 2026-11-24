@@ -213,3 +213,38 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - O evento de audit é `duplicate_found` ou `no_duplicate`.
 - **Entrada.** O engine recebe a lista de tarefas existentes (`ExistingTask`), lida do banco por quem chama, e o título calculado por `build_title`.
 - **Triagem automática na T15** (2026-11-23, revisão da T13, decidido pela autora). Os engines da T11–T13 ficam prontos sem rodar no pipeline, porque a triagem precisa das tarefas abertas, que vêm do banco (T14). A T15 liga a triagem automática depois de `READY_FOR_TRIAGE` (D01): prioridade, responsável, dependências e duplicidade são gravados na demanda, e a demanda segue para `TRIAGED` e `PENDING_APPROVAL`. O aceite da T15 inclui um teste de integração que vai da mensagem até `PENDING_APPROVAL`. Isso completa a D31 e as notas de integração da D32 e da D33.
+
+**D35 · Banco, migração e auditoria** (2026-11-23, T14; o campo de duplicidade foi pedido pela autora).
+- **`duplicate_of` na demanda.** O modelo da demanda (§6) ganha `duplicate_of: {task_id, title, criteria[], jaccard} | null`. É onde a triagem (T15) grava a tarefa aberta parecida encontrada pelo `dedupe` e o motivo:
+  - `criteria` é o motivo, com os valores `same_brand_type_supplier`, `same_brand_type_campaign` e `similar_title`, e não pode vir vazio;
+  - `jaccard` fica em [0, 1].
+  
+  A demanda inteira vive em `requests.demand` (JSONB), então o campo não exige migração. Ele não é editável pelo PATCH (D23); `force_new` e `link-existing` (T15) é que o tratam.
+- **Tabelas (§10).**
+  - A demanda inteira fica em `requests.demand`. As colunas `requester`, `department` e `status` são cópias para consulta, e `RequestRow.update_demand` as mantém em sincronia, recusando uma demanda com outro `request_id`.
+  - Ids de demanda são UUID e ids de tarefa são inteiros (D25).
+  - `tasks.status` aceita `Aberta` e `Concluída`. "Bloqueada" é a flag `blocked` (D03, D13).
+  - `users` não tem colunas na §10. Ficou com `id`, `name`, `department`, `role` (`requester` ou `manager`) e `created_at`, e ainda não é usada.
+  - As dependências da tarefa seguem a ordem do `id`, que é o índice `i` de `POST /tasks/{id}/dependencies/{i}/resolve`.
+- **Restrições no banco.** As listas fechadas da SPEC viram `CHECK`: estado da demanda, ator do audit, papel da mensagem e do usuário, status e prioridade da tarefa e status da dependência. Os valores vêm dos próprios schemas (`RequestStatus`, `AuditActor`, `PriorityLevel`, `DependencyStatus`), sem lista duplicada.
+- **Chaves e índices.**
+  - Os nomes de restrições e índices seguem uma convenção fixa, para as migrações futuras ficarem estáveis.
+  - `audit_log` aponta para `requests` e `tasks` sem cascata, para que o histórico nunca seja apagado junto. `messages` e `dependencies` são apagadas junto com a demanda ou a tarefa.
+- **Migração.** `backend/alembic.ini` e `backend/migrations/` contêm uma revisão inicial (`0001`), gerada pelo autogenerate e revisada. A URL vem de `DATABASE_URL`, a não ser que quem chama defina `sqlalchemy.url`, como fazem os testes. O teste confirma três coisas:
+  - a migração sobe do zero;
+  - o autogenerate não encontra diferenças entre o banco migrado e os models;
+  - `downgrade base` seguido de `upgrade head` funciona.
+- **Testes com banco.**
+  - Usam bancos próprios (`<banco>_test` e `<banco>_migration_test`), criados e apagados pelos testes. A origem é `DATABASE_URL` ou, se definida, `TEST_DATABASE_URL`.
+  - Cada teste roda numa transação desfeita no fim.
+  - Sem Postgres no ar, esses testes são pulados com a mensagem "rode `make db`". `make test` completo pressupõe `make db`.
+- **`services/audit.py`.**
+  - `record` grava uma linha.
+  - `record_events` grava os `AuditEvent` do pipeline, em ordem.
+  - `record_payload` grava o `audit_payload()` de qualquer engine.
+  - `entries_for_request` e `entries_for_task` leem as linhas como `AuditEntry` (§9).
+  - O horário vem sempre de quem chama e precisa ter fuso.
+  - Um ator fora da lista dá `ValueError`.
+  - Os valores são convertidos para JSON (datas e UUIDs viram texto), e um payload vazio vira `NULL`.
+  - O serviço não faz commit; quem chama decide a transação.
+- **`AuditEvent`** saiu de `services/pipeline.py` e foi para `schemas/audit.py`, para ser usado pelo pipeline e pelo serviço de audit sem dependência circular.

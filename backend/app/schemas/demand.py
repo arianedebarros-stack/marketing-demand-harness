@@ -61,6 +61,22 @@ class Dependency(BaseModel):
     status: DependencyStatus = "Pendente"
 
 
+DuplicateCriterion = Literal[
+    "same_brand_type_supplier", "same_brand_type_campaign", "similar_title"
+]
+
+
+class DuplicateCandidate(BaseModel):
+    """Tarefa aberta parecida encontrada na triagem (§8.8, D35): vai no 409 do approve."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    task_id: int
+    title: str = Field(min_length=1)
+    criteria: list[DuplicateCriterion] = Field(min_length=1)
+    jaccard: float = Field(ge=0, le=1)
+
+
 class RequiredFile(BaseModel):
     """Arquivo obrigatório com a origem do item (D28): itens de regra são recalculados."""
 
@@ -146,6 +162,9 @@ class Demand(ContentFields):
     status: RequestStatus = RequestStatus.RECEIVED
     field_origin: dict[str, FieldOrigin] = Field(default_factory=dict)
     external_task_id: str | None = None
+    # D35: duplicidade encontrada na triagem; a demanda vive em requests.demand (JSONB),
+    # então este campo não exige migração.
+    duplicate_of: DuplicateCandidate | None = None
 
     @field_validator("field_origin")
     @classmethod

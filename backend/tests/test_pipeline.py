@@ -14,9 +14,10 @@ from app.core.config import AppConfig, load_app_config
 from app.core.state_machine import InvalidTransition
 from app.llm.base import InterpretationContext
 from app.llm.fake_client import FakeLLMClient
+from app.schemas.audit import AuditEvent
 from app.schemas.demand import Demand, Dependency, FieldOrigin, RequestStatus, RequiredFile
 from app.schemas.llm import LLMInterpretation
-from app.services.pipeline import AuditEvent, PipelineResult, process_message, revalidate
+from app.services.pipeline import PipelineResult, process_message, revalidate
 
 CONFIG: AppConfig = load_app_config()
 TZ = ZoneInfo("America/Sao_Paulo")

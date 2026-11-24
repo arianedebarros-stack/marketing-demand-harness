@@ -10,7 +10,7 @@ persistência (T14/T15) grava em ``audit_log``. A triagem automática da D01 ent
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -25,7 +25,8 @@ from app.engines.guardrails import apply_guardrails
 from app.engines.rules import apply_rules
 from app.engines.validator import validate_demand
 from app.llm.base import InterpretationContext, LLMClient
-from app.schemas.api import AuditActor, NextAction, Question, ScoreBand
+from app.schemas.api import NextAction, Question, ScoreBand
+from app.schemas.audit import AuditEvent
 from app.schemas.demand import (
     EXTRACTABLE_FIELDS,
     Demand,
@@ -39,16 +40,6 @@ S = RequestStatus
 MANAGER = FieldOrigin.MANAGER
 LLM = FieldOrigin.LLM
 MESSAGE = FieldOrigin.MESSAGE
-
-
-@dataclass(frozen=True)
-class AuditEvent:
-    """Linha de ``audit_log`` ainda não gravada (§15)."""
-
-    actor: AuditActor
-    action: str
-    previous_value: dict[str, Any] = field(default_factory=dict)
-    new_value: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

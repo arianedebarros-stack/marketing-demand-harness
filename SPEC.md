@@ -108,11 +108,12 @@ marketing-demand-harness/
   "type_confirmed": false,
   "status": "RECEIVED",
   "field_origin": { "<field>": "message|llm|rule|harness|manager|requester" },
-  "external_task_id": "string|null"
+  "external_task_id": "string|null",
+  "duplicate_of": { "task_id": 0, "title": "string", "criteria": ["same_brand_type_supplier|same_brand_type_campaign|similar_title"], "jaccard": 0.0 }
 }
 ```
 
-`field_origin` é obrigatório: a UI mostra de onde veio cada valor.
+`field_origin` é obrigatório: a UI mostra de onde veio cada valor. `duplicate_of` é `null` ou a tarefa aberta parecida encontrada na triagem, com o motivo (D35).
 
 ## 7. Estados
 
@@ -254,6 +255,8 @@ Erros: `422` validação; `409` transição inválida ou duplicidade; `502` falh
 ## 10. Banco de dados
 
 Tabelas: `users`, `requests` (id, requester, department, channel, status, demand JSONB, created_at, updated_at), `messages` (id, request_id, role, text, created_at), `tasks` (id, request_id, external_task_id, title, type, brand, supplier, campaign, assigned_to, priority, deadline, blocked, status, briefing, briefing_score, created_at), `dependencies` (id, task_id, description, owner, status), `audit_log` (id, request_id, task_id, actor[llm|harness|user|manager], action, previous_value JSONB, new_value JSONB, timestamp).
+
+A demanda inteira fica em `requests.demand` (JSONB); listas fechadas da SPEC viram `CHECK`; migração Alembic em `backend/migrations/` (D35).
 
 Config de marcas/tipos/equipe/prioridade/guardrails/duplicidade permanece nos 6 arquivos de `config/` (`brands.json`, `task_types.json`, `team.json`, `priorities.json`, `guardrails.json`, `dedupe.json`) nesta entrega.
 
