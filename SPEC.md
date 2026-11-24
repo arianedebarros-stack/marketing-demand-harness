@@ -217,11 +217,11 @@ Priority Score = urgência×0,40 + impacto×0,30 + dependências×0,15 + risco×
 
 ### 8.7 Dependency Checker
 
-Dependências explícitas do LLM (deduplicadas por texto normalizado). Tarefa com dependência `Pendente` é criada com `blocked = true`. `POST /tasks/{id}/dependencies/{i}/resolve` resolve; sem pendências → desbloqueia.
+Dependências explícitas do LLM (deduplicadas por texto normalizado). Tarefa com dependência `Pendente` é criada com `blocked = true`. `POST /tasks/{id}/dependencies/{i}/resolve` resolve; sem pendências → desbloqueia. Lógica em `engines/dependency.py` (D34).
 
 ### 8.8 Duplicidade (`engines/dedupe.py`)
 
-Antes de criar: tarefa aberta com mesma `brand` + `task_type` + (`supplier` ou `campaign`) criada nos últimos 30 dias, **ou** Jaccard de palavras do título ≥ 0,75. Se encontrar, `approve` retorna `409` com a tarefa candidata; o cliente reenvia com `{"force_new": true}` ou chama `link-existing`.
+Antes de criar: tarefa aberta com mesma `brand` + `task_type` + (`supplier` ou `campaign`) criada nos últimos 30 dias, **ou** Jaccard de palavras do título ≥ 0,75. Se encontrar, `approve` retorna `409` com a tarefa candidata; o cliente reenvia com `{"force_new": true}` ou chama `link-existing`. Só tarefas abertas contam; janela e limite do Jaccard em `config/dedupe.json`; a janela vale só para o primeiro critério (D34).
 
 ### 8.9 Título e briefing final
 
@@ -255,7 +255,7 @@ Erros: `422` validação; `409` transição inválida ou duplicidade; `502` falh
 
 Tabelas: `users`, `requests` (id, requester, department, channel, status, demand JSONB, created_at, updated_at), `messages` (id, request_id, role, text, created_at), `tasks` (id, request_id, external_task_id, title, type, brand, supplier, campaign, assigned_to, priority, deadline, blocked, status, briefing, briefing_score, created_at), `dependencies` (id, task_id, description, owner, status), `audit_log` (id, request_id, task_id, actor[llm|harness|user|manager], action, previous_value JSONB, new_value JSONB, timestamp).
 
-Config de marcas/tipos/equipe/prioridade/guardrails permanece nos 5 arquivos de `config/` (`brands.json`, `task_types.json`, `team.json`, `priorities.json`, `guardrails.json`) nesta entrega.
+Config de marcas/tipos/equipe/prioridade/guardrails/duplicidade permanece nos 6 arquivos de `config/` (`brands.json`, `task_types.json`, `team.json`, `priorities.json`, `guardrails.json`, `dedupe.json`) nesta entrega.
 
 ## 11. Integração com o sistema de tarefas
 

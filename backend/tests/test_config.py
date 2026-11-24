@@ -68,6 +68,9 @@ def test_loads_all_real_configs() -> None:
     assert config.priorities.deadline_hour == 18
     assert config.priorities.impact.promotional_min == 80
     assert config.priorities.risk.with_supplier == 50
+
+    assert config.dedupe.window_days == 30
+    assert config.dedupe.title_jaccard_min == 0.75
     assert config.priorities.elevation.critical_under_hours == 24
     assert config.priorities.elevation.high_max_hours == 72
     assert config.priorities.assignment_tiebreak_levels == ["Crítica", "Alta"]
@@ -144,6 +147,16 @@ def test_unknown_key_is_rejected(config_copy: Path) -> None:
             "priorities.json",
             lambda d: d["assignment_tiebreak_levels"].append("Urgentíssima"),
             "assignment_tiebreak_levels",
+        ),
+        (
+            "dedupe.json",
+            lambda d: d.update(window_days=0),
+            "window_days",
+        ),
+        (
+            "dedupe.json",
+            lambda d: d.update(title_jaccard_min=1.5),
+            "title_jaccard_min",
         ),
         (
             "priorities.json",

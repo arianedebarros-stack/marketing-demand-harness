@@ -20,6 +20,7 @@ from pydantic_core import to_jsonable_python
 from app.core.config import AppConfig
 from app.core.state_machine import InvalidTransition, can_transition, transition
 from app.core.text import digit_groups, normalize
+from app.engines.dependency import merge_dependencies
 from app.engines.guardrails import apply_guardrails
 from app.engines.rules import apply_rules
 from app.engines.validator import validate_demand
@@ -28,7 +29,6 @@ from app.schemas.api import AuditActor, NextAction, Question, ScoreBand
 from app.schemas.demand import (
     EXTRACTABLE_FIELDS,
     Demand,
-    Dependency,
     FieldOrigin,
     RequestStatus,
     RequiredFile,
@@ -185,7 +185,7 @@ def _merge(
     if interpretation.published_error is not None:  # D24; ausente mantém o anterior (D31)
         updates["published_error"] = interpretation.published_error
 
-    dependencies = _merge_dependencies(demand.dependencies, interpretation.dependencies)
+    dependencies = merge_dependencies(demand.dependencies, interpretation.dependencies)
     if dependencies != demand.dependencies:
         updates["dependencies"] = dependencies
     files = _merge_files(demand.required_files, interpretation.files)
@@ -241,18 +241,6 @@ def _drop_stale_dimensions(
         )
     )
     return merged.model_copy(update={"dimensions": None, "field_origin": origin})
-
-
-def _merge_dependencies(current: list[Dependency], new: list[Dependency]) -> list[Dependency]:
-    """Acrescenta dependências novas; as existentes ficam com o status que já tinham."""
-    merged = list(current)
-    seen = {normalize(d.dependency).strip() for d in current}
-    for dep in new:
-        key = normalize(dep.dependency).strip()
-        if key not in seen:
-            merged.append(dep)
-            seen.add(key)
-    return merged
 
 
 def _merge_files(current: list[RequiredFile], new: list[str]) -> list[RequiredFile]:

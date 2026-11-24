@@ -314,12 +314,20 @@ class GuardrailsConfig(_Strict):
         return patterns
 
 
+class DedupeConfig(_Strict):
+    """Parâmetros da duplicidade (§8.8, D34)."""
+
+    window_days: float = Field(gt=0)
+    title_jaccard_min: float = Field(gt=0, le=1)
+
+
 class AppConfig(_Strict):
     brands: dict[str, Brand]
     task_types: TaskTypesConfig
     team: list[TeamMember]
     priorities: PrioritiesConfig
     guardrails: GuardrailsConfig
+    dedupe: DedupeConfig
 
 
 # --- Loader ----------------------------------------------------------------------------------
@@ -329,6 +337,7 @@ _TEAM = TypeAdapter(list[TeamMember])
 _TASK_TYPES = TypeAdapter(TaskTypesConfig)
 _PRIORITIES = TypeAdapter(PrioritiesConfig)
 _GUARDRAILS = TypeAdapter(GuardrailsConfig)
+_DEDUPE = TypeAdapter(DedupeConfig)
 
 
 def _load_file[T](config_dir: Path, name: str, adapter: TypeAdapter[T]) -> T:
@@ -356,6 +365,7 @@ def load_app_config(config_dir: Path = DEFAULT_CONFIG_DIR) -> AppConfig:
     team = _load_file(config_dir, "team.json", _TEAM)
     priorities = _load_file(config_dir, "priorities.json", _PRIORITIES)
     guardrails = _load_file(config_dir, "guardrails.json", _GUARDRAILS)
+    dedupe = _load_file(config_dir, "dedupe.json", _DEDUPE)
 
     _check_team(team, task_types)
     return AppConfig(
@@ -364,6 +374,7 @@ def load_app_config(config_dir: Path = DEFAULT_CONFIG_DIR) -> AppConfig:
         team=team,
         priorities=priorities,
         guardrails=guardrails,
+        dedupe=dedupe,
     )
 
 

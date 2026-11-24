@@ -184,3 +184,31 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - O evento de audit é `assignment_calculated`, ou `assignment_locked` quando o gestor travou o responsável.
 - **Trava do gestor.** Com `assignment_locked`, o engine devolve o responsável atual sem recalcular e sem cargas. O nome vem de `team.json`; quando o id não está lá, aparece o próprio id; quando não há responsável, aparece o `approver_default`.
 - **Integração com o pipeline.** Como na D32, gravar `assigned_to` na demanda faz parte da triagem automática (D01), que entra depois da T13.
+
+**D34 · Detalhes de dependências e duplicidade** (2026-11-23, T13).
+- **Um só lugar para dependências.**
+  - `engines/dependency.py` guarda a deduplicação (`merge_dependencies`), o bloqueio (`is_blocked`: há alguma `Pendente`) e a resolução (`resolve_dependency`).
+  - O pipeline passa a usar `merge_dependencies` em vez da função própria da T10.
+  - O texto normalizado ignora acento, caixa, pontuação e espaços extras ("APROVAÇÃO DE PREÇO!" é igual a "Aprovação de preço").
+  - Duplicatas dentro da mesma lista também são removidas. Fica a primeira ocorrência, com o dono e o status dela.
+- **Resolução.**
+  - Resolver uma dependência já resolvida não muda nada (`changed = false`).
+  - Um índice inexistente levanta `IndexError`, que a API (T15) converte em 404.
+  - O resultado diz se a tarefa continua bloqueada.
+  - O evento de audit é `dependency_resolved`.
+  - Gravar `tasks.blocked` é da T14/T15.
+- **Duplicidade só entre tarefas abertas.**
+  - Tarefas fechadas nunca geram 409.
+  - A janela de 30 dias vale só para o critério "marca + tipo + (fornecedor ou campanha)", como está escrito na §8.8, e inclui o limite (30 dias exatos ainda contam).
+  - O critério de Jaccard ≥ 0,75 vale sozinho, sem janela. O limite também conta.
+- **Comparações.**
+  - Marca, tipo, fornecedor e campanha são comparados sem acento e sem caixa.
+  - Valor vazio de um dos lados não conta como igual (D12).
+  - As palavras do título ignoram "|" (D12) e incluem números, para "Black Friday 2025" não ser confundida com "Black Friday 2026".
+- **Valores em `config/dedupe.json`.** O arquivo novo guarda `window_days` (30) e `title_jaccard_min` (0,75). O loader passa a ler 6 arquivos.
+- **Várias candidatas.**
+  - O resultado lista todas, cada uma com os critérios que casaram e o Jaccard.
+  - A ordem é: primeiro quem casou no critério de marca/tipo, depois o maior Jaccard, depois a mais recente.
+  - A primeira é a `duplicate` que vai no 409.
+  - O evento de audit é `duplicate_found` ou `no_duplicate`.
+- **Entrada.** O engine recebe a lista de tarefas existentes (`ExistingTask`), lida do banco por quem chama, e o título calculado por `build_title`.
