@@ -9,11 +9,14 @@ from __future__ import annotations
 
 import os
 from collections.abc import Iterator
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import pytest
 from alembic import command
 from alembic.config import Config
+from fastapi.testclient import TestClient
 from sqlalchemy import URL, create_engine, make_url, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
@@ -119,3 +122,24 @@ def pytest_unconfigure(config: pytest.Config) -> None:
     if skipped:
         message += " (motivos na lista SKIPPED acima; testes de banco precisam de `make db`)"
     reporter.write_sep("=", message, bold=True, red=bool(skipped), green=not skipped)
+
+
+# --- API (T15) -----------------------------------------------------------------------------
+
+API_NOW = datetime(2026, 10, 19, 9, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))  # manhã (D20)
+
+
+@pytest.fixture
+def client(session: Session) -> Iterator[TestClient]:
+    """TestClient com o banco de teste, "agora" fixo e FakeLLMClient (nunca o LLM real)."""
+    from app.api import deps
+    from app.llm.fake_client import FakeLLMClient
+    from app.main import app
+
+    app.dependency_overrides[deps.get_session] = lambda: session
+    app.dependency_overrides[deps.get_now] = lambda: API_NOW
+    app.dependency_overrides[deps.get_llm] = FakeLLMClient
+    try:
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.clear()

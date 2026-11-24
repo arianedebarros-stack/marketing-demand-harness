@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, StringConstraints
 
-from app.schemas.demand import ContentFields, Demand, PriorityLevel
+from app.schemas.demand import (
+    ContentFields,
+    Demand,
+    DependencyStatus,
+    DuplicateCandidate,
+    PriorityLevel,
+)
 
 NonBlankStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
@@ -48,6 +54,43 @@ class RequestView(BaseModel):
     questions: list[Question] = Field(default_factory=list)
     score_band: ScoreBand
     audit: list[AuditEntry] = Field(default_factory=list)
+
+
+class TaskDependencyView(BaseModel):
+    """Dependência da tarefa; ``index`` é o ``{index}`` de ``.../dependencies/{index}/resolve``."""
+
+    index: int
+    description: str
+    owner: str
+    status: DependencyStatus
+
+
+class TaskView(BaseModel):
+    id: int
+    request_id: UUID
+    external_task_id: str | None
+    title: str
+    type: str
+    brand: str | None
+    supplier: str | None
+    campaign: str | None
+    assigned_to: str | None
+    priority: PriorityLevel | None
+    deadline: date | None
+    blocked: bool
+    status: Literal["Aberta", "Concluída"]
+    briefing: str
+    briefing_score: int
+    created_at: datetime
+    dependencies: list[TaskDependencyView] = Field(default_factory=list)
+
+
+class DuplicateConflict(BaseModel):
+    """Corpo do 409 de ``approve`` quando há tarefa aberta parecida (§8.8, caso 05)."""
+
+    detail: str
+    duplicate: DuplicateCandidate
+    task: TaskView
 
 
 # --- Corpos das requisições ----------------------------------------------------------------------

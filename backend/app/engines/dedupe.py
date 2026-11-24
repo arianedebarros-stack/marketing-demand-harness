@@ -14,11 +14,11 @@ from typing import Any
 
 from app.core.config import AppConfig
 from app.core.text import normalize
-from app.schemas.demand import Demand
+from app.schemas.demand import Demand, DuplicateCriterion
 
-SAME_SUPPLIER = "same_brand_type_supplier"
-SAME_CAMPAIGN = "same_brand_type_campaign"
-SIMILAR_TITLE = "similar_title"
+SAME_SUPPLIER: DuplicateCriterion = "same_brand_type_supplier"
+SAME_CAMPAIGN: DuplicateCriterion = "same_brand_type_campaign"
+SIMILAR_TITLE: DuplicateCriterion = "similar_title"
 
 
 @dataclass(frozen=True)
@@ -36,7 +36,7 @@ class ExistingTask:
 @dataclass(frozen=True)
 class DuplicateMatch:
     task: ExistingTask
-    criteria: list[str]
+    criteria: list[DuplicateCriterion]
     jaccard: float
 
 
@@ -90,7 +90,7 @@ def find_duplicate(
     for task in tasks:
         if not task.is_open:
             continue
-        criteria: list[str] = []
+        criteria: list[DuplicateCriterion] = []
         recent = now - task.created_at <= window
         if recent and _same(demand.brand, task.brand) and _same(demand.task_type, task.task_type):
             if _same(demand.supplier, task.supplier):

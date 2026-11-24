@@ -246,11 +246,13 @@ Todas as respostas de `/requests/*` retornam `RequestView`: `{ demand, next_acti
 | POST | `/requests/{id}/approve` | `{force_new?: bool}` | Dedupe → APPROVED → cria tarefa → TASK_CREATED; 409 se duplicada |
 | POST | `/requests/{id}/link-existing` | `{task_id}` | Vincula a tarefa existente → CANCELLED |
 | POST | `/requests/{id}/cancel` | — | CANCELLED |
+| POST | `/requests/{id}/reject` | — | `PENDING_APPROVAL → REJECTED` (D02) |
 | GET | `/tasks` | — | Lista tarefas |
 | POST | `/tasks/{id}/dependencies/{index}/resolve` | — | Resolve dependência |
+| POST | `/tasks/{id}/complete` | — | Conclui a tarefa (D13) |
 | GET | `/config` | — | Config atual (somente leitura) |
 
-Erros: `422` validação; `409` transição inválida ou duplicidade; `502` falha do LLM (com fallback para `FakeLLMClient` se `LLM_FALLBACK=true`).
+Erros: `404` recurso inexistente; `422` validação; `409` transição inválida, triagem sem 100% ou duplicidade (corpo `{detail, duplicate, task}`); `502` falha do LLM (com fallback para `FakeLLMClient` se `LLM_FALLBACK=true`) ou do sistema de tarefas (D04). Triagem automática depois de `READY_FOR_TRIAGE` e demais detalhes em D36.
 
 ## 10. Banco de dados
 

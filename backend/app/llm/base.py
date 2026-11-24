@@ -65,6 +65,9 @@ class InterpretationContext:
 
 
 class LLMClient(Protocol):
-    provider: str
+    @property
+    def provider(self) -> str:
+        """Nome do provedor que respondeu (vai para o audit)."""
+        ...
 
     def interpret(self, context: InterpretationContext) -> LLMInterpretation: ...

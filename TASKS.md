@@ -24,12 +24,12 @@ Execute em ordem. Cada tarefa = testes + código + commit. Referências em `SPEC
 - [x] **T12 · Assignment Engine** — `engines/assignment.py` (§8.6). *Aceite:* AC11.
 - [x] **T13 · Dependências e duplicidade** — `engines/dependency.py`, `engines/dedupe.py` (§8.7, §8.8). *Aceite:* AC10 e caso 05.
 - [x] **T14 · Banco e auditoria** — models SQLAlchemy + Alembic (§10), `services/audit.py` (§15). *Aceite:* AC15; migração sobe do zero.
-- [ ] **T15 · API** — endpoints da §9 com TestClient. *Aceite:* AC01, AC13; casos 01–06 como testes E2E com FakeLLMClient; triagem automática ligada depois de `READY_FOR_TRIAGE` (D01, D34): prioridade, responsável, dependências e duplicidade gravados na demanda, com teste de integração da mensagem até `PENDING_APPROVAL`.
+- [x] **T15 · API** — endpoints da §9 com TestClient. *Aceite:* AC01, AC13; casos 01–06 como testes E2E com FakeLLMClient; triagem automática ligada depois de `READY_FOR_TRIAGE` (D01, D34): prioridade, responsável, dependências e duplicidade gravados na demanda, com teste de integração da mensagem até `PENDING_APPROVAL`.
 
 ## Fase 3 — LLM real, integração e interface
 
 - [ ] **T16 · AnthropicClient** — `llm/anthropic_client.py` com tool `register_interpretation` e `input_schema` gerado de `LLMInterpretation`; prompt em `llm/prompts.py` (§8.1); fallback para Fake se `LLM_FALLBACK=true`. *Aceite:* teste com SDK mockado; rodada manual documentada no README.
-- [ ] **T17 · Task manager** — `integrations/local.py` e `integrations/asana.py` (§11). *Aceite:* AC14 com Asana mockado (respx).
+- [ ] **T17 · Task manager** — `integrations/asana.py` e escolha por `TASK_MANAGER` (§11); a interface e o `integrations/local.py` já entraram na T15 (D36). *Aceite:* AC14 com Asana mockado (respx).
 - [ ] **T18 · Frontend: Nova demanda + Ficha** — telas 1 e 2 da §13 consumindo a API.
 - [ ] **T19 · Frontend: Approval Gate, Quadro e Registro** — telas 3, 4 e 5 da §13. *Aceite:* caso 06 executado ponta a ponta na UI.
 - [ ] **T20 · Avaliação de classificação** — `tests/data/classification.jsonl` com ≥ 20 frases rotuladas; teste mede acurácia ≥ 90% com o Fake; script `make eval-llm` mede com o LLM real. *Aceite:* AC02.

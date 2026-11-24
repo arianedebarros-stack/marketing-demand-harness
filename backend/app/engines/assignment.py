@@ -23,7 +23,7 @@ class OpenTask:
     """Tarefa aberta (inclui as bloqueadas, D03) usada para calcular a carga."""
 
     assigned_to: str | None
-    priority: PriorityLevel | None
+    priority: PriorityLevel | str | None  # texto vindo do banco (tasks.priority)
 
 
 @dataclass(frozen=True)

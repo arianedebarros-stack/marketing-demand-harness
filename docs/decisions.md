@@ -251,3 +251,59 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - Os valores são convertidos para JSON (datas e UUIDs viram texto), e um payload vazio vira `NULL`.
   - O serviço não faz commit; quem chama decide a transação.
 - **`AuditEvent`** saiu de `services/pipeline.py` e foi para `schemas/audit.py`, para ser usado pelo pipeline e pelo serviço de audit sem dependência circular.
+
+**D36 · Detalhes da API e da triagem automática** (2026-11-23, T15).
+- **Triagem automática ligada** (D01, D34).
+  - Quando o pipeline termina em `READY_FOR_TRIAGE`, o serviço da API roda `services/triage.py`, que é puro, e leva a demanda a `TRIAGED` e `PENDING_APPROVAL`.
+  - Ficam gravados na demanda:
+    - `priority` e `priority_score`;
+    - `assigned_to`, vazio quando não há candidato (D33);
+    - `approver`, com o `approver_default` quando estava vazio;
+    - `duplicate_of` (D35).
+  - Esses campos ganham origem `harness`. As travas do gestor são respeitadas.
+  - As dependências já vêm do merge. A triagem só registra `dependencies_checked`, com o número de pendências e se a tarefa vai nascer bloqueada.
+  - `POST /triage` exige 100%. Em `PENDING_APPROVAL`, recalcula sem mudar o estado; em outros estados, responde 409.
+  - O serviço lê do banco as tarefas abertas, para a carga e a duplicidade.
+- **Uma transação por requisição.** A demanda, as mensagens e o audit são gravados juntos.
+  - Numa transição inválida, o que a requisição mudou é desfeito, a recusa é gravada no audit (`invalid_transition`) e a API responde 409.
+  - A linha da demanda é lida com `SELECT ... FOR UPDATE`.
+- **Mensagens.** A mensagem do solicitante é gravada como `requester`. Quando há perguntas, o texto delas é gravado como `assistant`. O histórico enviado ao LLM usa só as mensagens `requester` (§8.1).
+- **`RequestView` derivado da demanda gravada.** Perguntas, `next_action` e faixa do score são recalculados a partir da demanda, então o GET devolve o mesmo que a operação que gravou. O `next_action` segue esta tabela:
+
+  | Estado | `next_action` |
+  |---|---|
+  | `NEEDS_INFORMATION` | `CONFIRM_TYPE` (tipo incerto) ou `REQUEST_INFORMATION` |
+  | `READY_FOR_TRIAGE`, `TRIAGED`, `PENDING_APPROVAL`, `APPROVED` | `AWAIT_APPROVAL` (`APPROVED` só existe quando a criação da tarefa falhou, D04) |
+  | `TASK_CREATED` | `DONE` |
+  | `CANCELLED`, `REJECTED`, `ERROR` | `CANCELLED` |
+  
+  As perguntas só aparecem em `NEEDS_INFORMATION`.
+- **`confirm-type`.**
+  - O tipo é comparado sem acento e sem caixa com `task_types.json`; um tipo desconhecido dá 422.
+  - O tipo confirmado ganha `type_confirmed = true` e origem `requester`, porque vem do chip do solicitante (§13).
+  - Depois, a demanda é revalidada e, se chegar a 100%, triada.
+- **PATCH (D23).**
+  - Só é aceito em `NEEDS_INFORMATION` e `PENDING_APPROVAL`; nos outros estados, responde 409.
+  - Cada campo enviado gera um `human_edit` com o valor antes e depois, e ganha origem `manager`. Enviar `null` limpa o campo e remove a origem.
+  - `priority` trava a prioridade (`priority_locked`) e limpa o `priority_score`; `null` destrava e a triagem recalcula.
+  - `assigned_to` precisa ser um id de `team.json` (senão 422) e trava o responsável; `null` destrava.
+  - Depois da edição, a demanda é revalidada e triada.
+- **`approve`.**
+  - Em `PENDING_APPROVAL`, a duplicidade é verificada de novo, com as tarefas abertas do momento. Se houver duplicata sem `force_new`, a API responde 409 com `{detail, duplicate, task}` e grava `duplicate_found`. Com `force_new`, grava `duplicate_overridden`.
+  - Em seguida grava `approved` (ator `manager`), muda para `APPROVED`, cria a tarefa, grava `task_created` (com `task_id`) e muda para `TASK_CREATED`.
+  - A tarefa nasce com título, briefing (D30, D33), `blocked` (D03) e as linhas de `dependencies`.
+  - Se o conector falhar, nada da tarefa fica gravado, a demanda fica em `APPROVED`, o erro vai para o audit como `task_creation_failed` e a API responde 502. Chamar `approve` de novo em `APPROVED` tenta só criar a tarefa (D04).
+- **`link-existing`.** Só em `PENDING_APPROVAL`. A tarefa precisa existir (senão 404) e estar aberta (senão 409). A demanda recebe o `external_task_id` da tarefa existente e vai para `CANCELLED`, com `linked_to_existing` no audit.
+- **`cancel` e `reject`.** `cancel` vale em qualquer estado não final, com ator `user`. `reject` vale só em `PENDING_APPROVAL`, com ator `manager` (D02).
+- **Tarefas.**
+  - `GET /tasks` lista as tarefas com as dependências. O `index` de cada dependência é o usado em `.../dependencies/{index}/resolve`; um índice inexistente dá 404.
+  - `POST /tasks/{id}/complete` (D13) responde 409 se a tarefa já está concluída.
+  - `GET /config` é só leitura.
+- **Conector local adiantado da T17.** `integrations/base.py` (interface) e `integrations/local.py` (`MKT-<id>`) entram na T15, porque o `approve` precisa criar a tarefa. A T17 fica com o `AsanaTaskManager`, a escolha por `TASK_MANAGER` e o AC14.
+- **LLM até a T16.**
+  - `llm/factory.py` escolhe o cliente pelas settings, e `llm/fallback.py` (`FallbackLLMClient`) tenta o principal e, se ele falhar, usa o Fake.
+  - O fallback é registrado como `llm_fallback` (provedor que falhou, provedor usado e erro), e a interpretação registra o provedor que de fato respondeu.
+  - Sem fallback, a requisição não grava nada e a API responde 502.
+  - Até a T16, `LLM_PROVIDER=anthropic` falha de propósito e cai no Fake quando `LLM_FALLBACK=true`.
+- **Códigos de erro.** 404 para recurso inexistente; 409 para transição inválida, triagem sem 100%, duplicidade e tarefa já concluída; 422 para validação, tipo desconhecido e responsável desconhecido; 502 para LLM sem fallback e falha do sistema de tarefas.
+- **Nomes de exceção.** Seguem o lint (sufixo `Error`): `LLMUnavailableError`, `TriageNotReadyError` e `TaskCreationError`. `InvalidTransition` mantém o nome da §7.
