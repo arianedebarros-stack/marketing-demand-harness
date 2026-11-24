@@ -211,9 +211,9 @@ Priority Score = urgência×0,40 + impacto×0,30 + dependências×0,15 + risco×
 1. Candidatos = `team` com `task_type` em `skills`.
 2. `carga = (open_base + tarefas abertas atribuídas no banco) / capacity`.
 3. Ordena por carga ↑, depois nº de tarefas Alta/Crítica abertas ↑.
-4. Sem candidato → `approver_default`, com motivo.
+4. Sem candidato → `assigned_to = null`; o resultado traz o nome do `approver_default` e o motivo para exibição (D33).
 5. `assignment_locked = true` → não recalcula.
-- Retorna `{employee_id, name, reason, loads: [{name, load}]}`.
+- Retorna `{employee_id, name, reason, loads: [{name, load}]}`. Desempate por tarefas abertas com os níveis de `priorities.json` (`assignment_tiebreak_levels`), depois pela ordem de `team.json` (D33).
 
 ### 8.7 Dependency Checker
 
@@ -226,7 +226,7 @@ Antes de criar: tarefa aberta com mesma `brand` + `task_type` + (`supplier` ou `
 ### 8.9 Título e briefing final
 
 - Título: `[TIPO] | [CAMPANHA ou "Promoção <fornecedor>" ou objetivo curto] | [MARCA]` — ex.: `Arte | Promoção Krona | Construjá`. "Promoção <fornecedor>" só quando promocional; objetivo curto = primeiras `title.objective_max_words` palavras (`task_types.json`, D30).
-- Briefing final: template em texto (seção 29 da spec original): TÍTULO, OBJETIVO, MARCA, PÚBLICO, CANAL, FORMATO, DIMENSÃO, MENSAGEM E TOM, PRODUTOS, PREÇOS, VIGÊNCIA, CTA, PRAZO, PRIORIDADE, RESPONSÁVEL, APROVAÇÃO, DEPENDÊNCIAS, ARQUIVOS, BRIEFING SCORE. Campos vazios não aparecem. Uma linha `RÓTULO: valor` por campo (D15); obrigatórios próprios do tipo entram entre CTA e PRAZO; datas em dd/mm/aaaa (D30).
+- Briefing final: template em texto (seção 29 da spec original): TÍTULO, OBJETIVO, MARCA, PÚBLICO, CANAL, FORMATO, DIMENSÃO, MENSAGEM E TOM, PRODUTOS, PREÇOS, VIGÊNCIA, CTA, PRAZO, PRIORIDADE, RESPONSÁVEL, APROVAÇÃO, DEPENDÊNCIAS, ARQUIVOS, BRIEFING SCORE. Campos vazios não aparecem. Uma linha `RÓTULO: valor` por campo (D15); obrigatórios próprios do tipo entram entre CTA e PRAZO; datas em dd/mm/aaaa (D30). Responsável vazio aparece como `RESPONSÁVEL: a definir (<approver_default>)` (D33).
 
 ## 9. API
 

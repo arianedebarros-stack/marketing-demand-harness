@@ -70,6 +70,7 @@ def test_loads_all_real_configs() -> None:
     assert config.priorities.risk.with_supplier == 50
     assert config.priorities.elevation.critical_under_hours == 24
     assert config.priorities.elevation.high_max_hours == 72
+    assert config.priorities.assignment_tiebreak_levels == ["Crítica", "Alta"]
 
     assert "planilha" in config.guardrails.attachment_words
     assert config.guardrails.product_min_word_length == 4
@@ -138,6 +139,11 @@ def test_unknown_key_is_rejected(config_copy: Path) -> None:
             "priorities.json",
             lambda d: d.update(deadline_hour=24),
             "deadline_hour",
+        ),
+        (
+            "priorities.json",
+            lambda d: d["assignment_tiebreak_levels"].append("Urgentíssima"),
+            "assignment_tiebreak_levels",
         ),
         (
             "priorities.json",

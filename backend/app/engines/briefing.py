@@ -12,6 +12,7 @@ from app.core.config import AppConfig
 from app.schemas.demand import Demand
 
 TITLE_SEPARATOR = " | "
+UNASSIGNED_TEMPLATE = "a definir ({approver})"
 
 # Lista da §8.9, na ordem do template. Os campos próprios do tipo entram depois do CTA (D30).
 _MAIN_BEFORE_TYPE: tuple[tuple[str, str], ...] = (
@@ -105,6 +106,9 @@ def _type_fields(demand: Demand, config: AppConfig) -> list[str]:
 
 
 def _format(name: str, value: Any, config: AppConfig) -> str | None:
+    if name == "assigned_to" and _text(value) is None:
+        # D33: sem responsável, a linha aparece em vez de sumir.
+        return UNASSIGNED_TEMPLATE.format(approver=config.task_types.approver_default)
     if value is None:
         return None
     if name == "assigned_to":

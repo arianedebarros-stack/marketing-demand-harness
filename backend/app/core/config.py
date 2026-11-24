@@ -272,6 +272,8 @@ class PrioritiesConfig(_Strict):
     impact: ImpactRules
     risk: RiskRules
     elevation: ElevationRules
+    # Desempate do Assignment Engine: tarefas abertas com estes níveis (§8.6, D33).
+    assignment_tiebreak_levels: list[Literal["Crítica", "Alta", "Normal", "Baixa"]]
 
     @model_validator(mode="after")
     def _ordered_tables(self) -> Self:

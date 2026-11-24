@@ -122,6 +122,7 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - ARQUIVOS são os nomes separados por "; ".
   - PRIORIDADE mostra só o nível.
   - BRIEFING SCORE vem como "N%" e sempre aparece.
+  - RESPONSÁVEL vazio aparece como "a definir (<approver_default>)" (D33, 2026-11-23; substitui a omissão da linha).
   - APROVAÇÃO só aparece quando `approver` está preenchido. O padrão `approver_default` é aplicado na triagem, não aqui.
 - **Título reaproveitável:** `build_briefing` aceita um título já calculado, para o pipeline não precisar recalculá-lo.
 
@@ -169,3 +170,17 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 - **Trava do gestor.** Com `priority_locked`, o engine devolve a prioridade e o score atuais, sem fatores, com o motivo "Prioridade definida pelo gestor; não recalculada.", e `locked = true`.
 - **Motivos.** Os motivos (`reasons`) vêm em pt-BR, com vírgula decimal. Há uma linha por fator, uma linha com a pontuação e a faixa, e uma linha para cada elevação aplicada. O evento de audit é `priority_calculated`, ou `priority_locked` quando o gestor travou a prioridade.
 - **Integração com o pipeline.** O engine só devolve o resultado. Gravar `priority` e `priority_score` na demanda e rodar a triagem automática depois de `READY_FOR_TRIAGE` (D01) fica para quando a T12 e a T13 existirem.
+
+**D33 · Detalhes do Assignment Engine** (2026-11-23, T12; o primeiro ponto foi definido pela autora).
+- **Sem candidato, o responsável fica vazio.** Se a demanda não tem tipo ou se ninguém tem o tipo nas `skills`, `assigned_to` fica `null` e o resultado traz `employee_id = null`. O nome do `approver_default` e o motivo vêm só para exibição. No briefing final, um responsável vazio aparece como `RESPONSÁVEL: a definir (<approver_default>)`, em vez de a linha ser omitida. Isso altera a D30, que só mostrava a linha quando `assigned_to` estava preenchido.
+- **Tarefas abertas como entrada.** O engine recebe a lista de tarefas abertas (`OpenTask`: `assigned_to` e `priority`), lida do banco por quem chama. As tarefas bloqueadas contam como abertas (D03). Tarefas sem responsável, ou de ids que não estão em `team.json`, são ignoradas.
+- **Carga e desempate.**
+  - A carga é calculada como fração exata, para que empates como 12/15 contra 12/15 sejam detectados sem erro de arredondamento.
+  - O desempate conta as tarefas abertas com os níveis de `priorities.json` (`assignment_tiebreak_levels`: Crítica e Alta).
+  - Se ainda houver empate, vale a ordem de `team.json`.
+- **Resultado.**
+  - `loads` lista só os candidatos, já ordenados, cada um com `employee_id`, nome, carga (fração com 4 casas no audit), tarefas abertas e tarefas Alta/Crítica abertas.
+  - O motivo vem em pt-BR e diz a carga em % e qual critério decidiu: único candidato, menor carga, desempate por Alta/Crítica ou ordem da equipe.
+  - O evento de audit é `assignment_calculated`, ou `assignment_locked` quando o gestor travou o responsável.
+- **Trava do gestor.** Com `assignment_locked`, o engine devolve o responsável atual sem recalcular e sem cargas. O nome vem de `team.json`; quando o id não está lá, aparece o próprio id; quando não há responsável, aparece o `approver_default`.
+- **Integração com o pipeline.** Como na D32, gravar `assigned_to` na demanda faz parte da triagem automática (D01), que entra depois da T13.

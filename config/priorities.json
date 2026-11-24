@@ -18,5 +18,6 @@
   "deadline_hour": 18,
   "impact": { "promotional_min": 80, "published_error": 100 },
   "risk": { "published_error": 100, "promotional_with_price": 70, "with_supplier": 50, "default": 30 },
-  "elevation": { "critical_under_hours": 24, "high_max_hours": 72 }
+  "elevation": { "critical_under_hours": 24, "high_max_hours": 72 },
+  "assignment_tiebreak_levels": ["Crítica", "Alta"]
 }

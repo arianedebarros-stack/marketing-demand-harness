@@ -136,6 +136,7 @@ def test_empty_fields_do_not_appear() -> None:
     assert briefing.splitlines() == [
         "TÍTULO: Arte | Ferjá",
         "MARCA: Ferjá",
+        "RESPONSÁVEL: a definir (Gestor de Marketing)",
         "BRIEFING SCORE: 0%",
     ]
 
@@ -153,6 +154,15 @@ def test_validity_that_is_not_iso_appears_as_is() -> None:
 def test_unknown_assignee_appears_as_id() -> None:
     briefing = build_briefing(_case_06(assigned_to="freela-x"), config=CONFIG)
     assert "RESPONSÁVEL: freela-x" in briefing.splitlines()
+
+
+def test_unassigned_shows_to_be_defined_by_approver_default() -> None:
+    """D33: sem responsável, a linha aparece como "a definir (<approver_default>)"."""
+    lines = build_briefing(_case_06(assigned_to=None), config=CONFIG).splitlines()
+
+    expected = f"RESPONSÁVEL: a definir ({CONFIG.task_types.approver_default})"
+    assert expected in lines
+    assert lines.index(expected) == lines.index("PRIORIDADE: Alta") + 1
 
 
 def test_multiple_dependencies() -> None:
@@ -207,6 +217,7 @@ def test_type_fields_after_cta_before_deadline() -> None:
         "PARTICIPANTES: Vendedor",
         "DATA DA GRAVAÇÃO: 25/11/2026",
         "PRAZO: 01/12/2026",
+        "RESPONSÁVEL: a definir (Gestor de Marketing)",
         "BRIEFING SCORE: 0%",
     ]
 
@@ -245,14 +256,15 @@ def test_every_type_field_has_a_label(task_type: str) -> None:
     assert len(lines) == len(set(lines))
     labels = [line.split(":", 1)[0] for line in lines]
     assert all(label.isupper() for label in labels)
-    # título + cada campo + score
-    assert len(lines) == 1 + len(fields) + 1
+    # título + cada campo + responsável a definir + score
+    assert len(lines) == 1 + len(fields) + 1 + 1
 
 
 def test_unknown_type_has_no_type_fields() -> None:
     demand = _demand(task_type="Holograma", duration="30 segundos")
     assert build_briefing(demand, config=CONFIG).splitlines() == [
         "TÍTULO: Holograma",
+        "RESPONSÁVEL: a definir (Gestor de Marketing)",
         "BRIEFING SCORE: 0%",
     ]
 
