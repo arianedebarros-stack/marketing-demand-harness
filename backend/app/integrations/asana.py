@@ -1,7 +1,8 @@
 """AsanaTaskManager (SPEC §11, D38): cria a tarefa no Asana e devolve o ``gid``.
 
 ``POST https://app.asana.com/api/1.0/tasks`` com ``{"data": {name, notes, due_on, projects}}`` e
-``Authorization: Bearer ASANA_TOKEN``. Não há nova tentativa automática: um POST repetido depois
+``Authorization: Bearer ASANA_TOKEN``. O texto (``notes``) é o briefing seguido do id da
+demanda. Não há nova tentativa automática: um POST repetido depois
 de um timeout pode criar a tarefa duas vezes. A falha vira ``AsanaError``; a demanda fica em
 ``APPROVED`` e o gestor chama ``approve`` de novo (D04).
 """
@@ -54,7 +55,8 @@ class AsanaTaskManager:
     def create_task(self, task: Task) -> str:
         data: dict[str, Any] = {
             "name": task.title,
-            "notes": task.briefing,
+            # D38: o id da demanda ajuda a reconhecer uma tarefa duplicada no Asana.
+            "notes": f"{task.briefing}\n\nID DA DEMANDA: {task.request_id}",
             "projects": [self.project_gid],
         }
         if task.deadline is not None:

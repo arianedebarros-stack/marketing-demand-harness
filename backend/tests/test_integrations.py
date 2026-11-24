@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from datetime import date
 from typing import Any
+from uuid import UUID
 
 import httpx
 import pytest
@@ -25,6 +26,7 @@ from app.main import app
 from app.models import Task
 
 FAKE_TOKEN = "token-de-teste-nao-real"
+REQUEST_ID = UUID("6f1c2d3e-4b5a-4c6d-8e7f-90a1b2c3d4e5")
 PROJECT = "1200000000000001"
 GID = "1209999999999999"
 CASE_02 = (
@@ -36,6 +38,7 @@ CASE_02 = (
 def _task(**fields: Any) -> Task:
     data: dict[str, Any] = {
         "id": 7,
+        "request_id": REQUEST_ID,
         "title": "Arte | Promoção Krona | Construjá",
         "briefing": "TÍTULO: Arte | Promoção Krona | Construjá\nPRAZO: 20/10/2026",
         "deadline": date(2026, 10, 20),
@@ -76,7 +79,10 @@ def test_asana_posts_task_with_spec_payload() -> None:
     assert json.loads(request.content) == {
         "data": {
             "name": "Arte | Promoção Krona | Construjá",
-            "notes": "TÍTULO: Arte | Promoção Krona | Construjá\nPRAZO: 20/10/2026",
+            "notes": (
+                "TÍTULO: Arte | Promoção Krona | Construjá\nPRAZO: 20/10/2026\n\n"
+                f"ID DA DEMANDA: {REQUEST_ID}"
+            ),
             "due_on": "2026-10-20",
             "projects": [PROJECT],
         }
@@ -218,7 +224,8 @@ def test_approve_creates_task_in_asana(client: TestClient, session: Session) -> 
     assert created["new_value"]["connector"] == "asana"
     sent = json.loads(route.calls.last.request.content)["data"]
     assert sent["name"] == task["title"]
-    assert sent["notes"] == task["briefing"]
+    # D38: o id da demanda no texto ajuda a reconhecer uma duplicata no Asana.
+    assert sent["notes"] == f"{task['briefing']}\n\nID DA DEMANDA: {request_id}"
     assert sent["due_on"] == task["deadline"]
 
 

@@ -348,5 +348,7 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - Um `POST` repetido depois de um timeout pode criar a tarefa duas vezes no Asana. Por isso, qualquer falha (resposta 4xx/5xx, erro de conexão, resposta sem `gid`) vira `AsanaError`, com o status e as mensagens de `errors[]` do Asana.
   - A partir daí vale a D04: nada da tarefa fica gravado, a demanda fica em `APPROVED`, a API responde 502 e um novo `approve` tenta de novo.
   - Risco que fica: se o Asana criar a tarefa e a resposta se perder (timeout depois do `POST`), o novo `approve` cria uma segunda tarefa lá. Isso só se evita consultando o Asana antes de repetir, o que fica fora desta entrega.
+  - **Risco aceito pela autora** (2026-11-23, revisão da T17), registrado no README em "Limitações conhecidas".
+  - Para facilitar a identificação de duplicatas, o texto da tarefa no Asana (`notes`) é o briefing seguido de uma linha em branco e de `ID DA DEMANDA: <request_id>`. A linha só vai para o Asana; o briefing gravado em `tasks` continua o mesmo.
 - **Fora do escopo da §11.** Responsável no Asana (`assignee`), seções, tags e campos personalizados não são enviados. O responsável continua no briefing (linha RESPONSÁVEL).
 - **Testes.** Todos usam `respx`, que falha o teste em qualquer requisição sem rota simulada, e um token falso. O AC14 está coberto pela API: a aprovação cria a tarefa no Asana simulado com o `gid` como `external_task_id`, e uma falha deixa a demanda em `APPROVED` até a nova tentativa.

@@ -71,6 +71,10 @@ ASANA_PROJECT_GID=<gid do projeto>
 - **Sem uma das duas variáveis:** com `TASK_MANAGER=asana`, a aplicação não sobe e mostra um erro claro.
 - **Se o Asana falhar:** a demanda fica em `APPROVED`, a API responde 502 e basta aprovar de novo (D04, D38).
 
+## Limitações conhecidas
+
+- **Tarefa duplicada no Asana (D38, risco aceito).** O sistema não repete sozinho uma criação que falhou no Asana. Mas se o Asana criar a tarefa e a resposta se perder no caminho (por exemplo, um timeout depois do envio), a demanda fica em `APPROVED`, e a nova aprovação cria uma segunda tarefa lá. Para reconhecer a duplicata, o texto de cada tarefa no Asana termina com `ID DA DEMANDA: <id>`. Duas tarefas com o mesmo id são a mesma demanda, e uma delas pode ser apagada no Asana.
+
 ## Status
 
 Acompanhe o progresso em [`TASKS.md`](TASKS.md).
