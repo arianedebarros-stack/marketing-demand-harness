@@ -381,3 +381,12 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 - **Quadro.** O status é Concluída quando `status = Concluída`; senão, Bloqueada quando `blocked`; senão, Aberta (D03). **Resolver** só aparece para dependência pendente de tarefa aberta. **Concluir tarefa** aparece em qualquer tarefa aberta, e o backend decide (D13). `/tarefas?tarefa=<id>` abre o detalhe direto.
 - **Atores no Registro.** IA (`llm`), Harness, Usuário (`user`) e Gestor (`manager`).
 - **Testes.** As fixtures do caso 06 (primeira resposta, segunda, final, aprovada, tarefas, dependência resolvida, audit) e do caso de duplicidade (pendente e 409) são respostas reais da API com o FakeLLMClient. O aceite (`tests/case06-flow.test.tsx`) percorre as cinco telas: cria a demanda, responde pelo chip e pelo chat, aprova no gate, vê a tarefa Bloqueada com a dependência de Compras e Designer A, resolve a dependência e confere o registro. Ele também verifica que nenhuma escrita aconteceu além das do fluxo. `config.json` das fixtures ganhou `priorities.bands`, usadas pelo seletor de prioridade.
+
+**D41 · FakeLLMClient tolera erros pequenos de digitação em canal e formato** (2026-11-25, pedido da autora depois de um teste manual; complementa a D26).
+- **O caso.** "objetivo teste, sera no instragram e preciso pra amanha 26/11" só preenchia o prazo. Havia dois motivos:
+  - o canal exigia a palavra exata, então "instragram" não casava;
+  - o objetivo, pela §12, só é reconhecido depois de "divulgar/promover/anunciar/lançar". A regra "a resposta inteira é o valor do campo" também não se aplicava, porque mais de um campo foi perguntado e o prazo foi extraído.
+- **A mudança.** Canal e formato procuram primeiro a palavra exata, como antes. Só quando ela não aparece, aceitam uma palavra a distância 1, contando uma letra a mais, a menos, trocada ou duas vizinhas invertidas ("instragram", "whatsap", "carrosel", "storeis"). Continua valendo a ordem das listas.
+- **Limite.** A aproximação só vale para palavras-chave com 6 letras ou mais: Instagram, WhatsApp, Facebook, LinkedIn, Stories e Carrossel. Assim "gmail", "sitio" e "reais" não viram E-mail, Site ou Reels. Os valores ficam em `llm/fake_client.py` (`TYPO_MIN_LENGTH`, `TYPO_MAX_DISTANCE`), junto das palavras-chave (D26).
+- **Origem.** Um canal aproximado não aparece literalmente no texto, então fica com origem `llm` (IA), e não `message` (D07).
+- **Fora desta mudança.** O objetivo do teste manual continua vazio. Marcas e fornecedores continuam exigindo o nome exato, sem diferenciar acento nem caixa.

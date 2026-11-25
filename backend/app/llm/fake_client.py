@@ -45,6 +45,12 @@ CHANNELS = {
 }
 FORMATS = {"feed": "Feed", "stories": "Stories", "reels": "Reels", "carrossel": "Carrossel"}
 
+# Erros pequenos de digitação em canal e formato (D41): uma letra a mais, a menos, trocada ou
+# duas vizinhas invertidas ("instragram"). Só para palavras-chave longas, para "gmail", "sitio"
+# ou "reais" não virarem E-mail, Site ou Reels.
+TYPO_MIN_LENGTH = 6
+TYPO_MAX_DISTANCE = 1
+
 ATTACHMENT_VALUE = "Conforme planilha anexada"
 OBJECTIVE_VERBS = r"divulgar|promover|anunciar|lan[cç]ar"
 DEFAULT_OWNER = "Não informado"
@@ -128,6 +134,36 @@ def _resolve_date(expr: str, today: date) -> date | None:
 # --- Extração de uma mensagem -----------------------------------------------------------------
 
 
+def _typo_distance(a: str, b: str) -> int:
+    """Distância de edição com transposição de vizinhas (Damerau, alinhamento ótimo)."""
+    previous2: list[int] = []
+    previous = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        current = [i]
+        for j, cb in enumerate(b, 1):
+            cost = 0 if ca == cb else 1
+            value = min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost)
+            if i > 1 and j > 1 and ca == b[j - 2] and a[i - 2] == cb:
+                value = min(value, previous2[j - 2] + 1)
+            current.append(value)
+        previous2, previous = previous, current
+    return previous[-1]
+
+
+def _find_keyword(normalized: str, keywords: dict[str, str]) -> str | None:
+    """Palavra exata primeiro; só sem ela, a aproximada (D41). Vale a ordem de ``keywords``."""
+    for key, value in keywords.items():
+        if re.search(rf"\b{re.escape(key)}\b", normalized):
+            return value
+    words = re.findall(r"[a-z0-9]+", normalized)
+    for key, value in keywords.items():
+        if len(key) < TYPO_MIN_LENGTH:
+            continue
+        if any(_typo_distance(word, key) <= TYPO_MAX_DISTANCE for word in words):
+            return value
+    return None
+
+
 def _find_name(normalized: str, names: list[str]) -> str | None:
     for name in names:
         if re.search(rf"\b{re.escape(_normalize(name))}\b", normalized):
@@ -143,14 +179,10 @@ def _extract_message(text: str, context: InterpretationContext) -> dict[str, str
         found["brand"] = brand
     if supplier := _find_name(norm, context.suppliers):
         found["supplier"] = supplier
-    for key, channel in CHANNELS.items():
-        if re.search(rf"\b{re.escape(key)}\b", norm):
-            found["channel"] = channel
-            break
-    for key, fmt in FORMATS.items():
-        if re.search(rf"\b{key}\b", norm):
-            found["format"] = fmt
-            break
+    if channel := _find_keyword(norm, CHANNELS):
+        found["channel"] = channel
+    if fmt := _find_keyword(norm, FORMATS):
+        found["format"] = fmt
     if dimensions := _DIMENSIONS_RE.search(text):
         found["dimensions"] = dimensions.group(0)
     if _ATTACHMENT_RE.search(norm):

@@ -678,3 +678,14 @@ def test_requester_files_keep_their_origin() -> None:
         ("Logo Krona", M),
         ("Imagens dos produtos", R),
     ]
+
+
+def test_channel_with_typo_is_registered_as_inferred() -> None:
+    """D41 + D07: "instragram" vira Instagram com origem ``llm`` (não está literal no texto)."""
+    result = _conversation(
+        "Preciso de uma arte da Construjá para amanhã.", "sera no instragram, formato feed"
+    )
+
+    assert result.demand.channel == "Instagram"
+    assert result.demand.field_origin["channel"] is FieldOrigin.LLM
+    assert "guardrail_discard" not in _actions(result.events)

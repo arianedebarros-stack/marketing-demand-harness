@@ -158,6 +158,68 @@ def test_channel_and_format(message: str, channel: str, fmt: str | None) -> None
     assert result.extracted.format == fmt
 
 
+# --- Erros pequenos de digitação (D41) -----------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("message", "channel", "fmt"),
+    [
+        ("sera no instragram", "Instagram", None),  # letra a mais
+        ("vai no instagam", "Instagram", None),  # letra a menos
+        ("manda no whatsap", "WhatsApp", None),
+        ("post no facebok", "Facebook", None),
+        ("vaga no linkdin", "LinkedIn", None),
+        ("instagarm em carrosel", "Instagram", "Carrossel"),  # troca de letras vizinhas
+        ("instagram nos storeis", "Instagram", "Stories"),
+    ],
+)
+def test_channel_and_format_tolerate_small_typos(
+    message: str, channel: str, fmt: str | None
+) -> None:
+    result = _interpret(message)
+
+    assert result.extracted.channel == channel
+    assert result.extracted.format == fmt
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "manda no meu gmail",  # "email" é curto demais para aproximar
+        "coloca no sitio",  # "site" também
+        "preço em reais",  # "reels" também
+        "faz no instaaagraam",  # duas letras de diferença
+        "uma linha de facas",
+    ],
+)
+def test_short_or_distant_words_are_not_approximated(message: str) -> None:
+    result = _interpret(message)
+
+    assert result.extracted.channel is None
+    assert result.extracted.format is None
+
+
+def test_exact_word_wins_over_approximation() -> None:
+    """Com uma palavra exata, a aproximada não é usada, mesmo vindo antes na lista."""
+    result = _interpret("Feed para o facebok e o instagram")
+
+    assert result.extracted.channel == "Instagram"
+
+
+def test_manual_test_message_fills_channel_and_deadline() -> None:
+    """Teste manual da autora (2026-11-25): o canal com erro de digitação agora é reconhecido."""
+    result = _interpret(
+        "objetivo teste, sera no instragram e preciso pra amanha 26/11",
+        asked=["objective", "channel", "format", "deadline"],
+        today=date(2026, 11, 25),
+    )
+
+    assert result.extracted.channel == "Instagram"
+    assert result.extracted.deadline == "2026-11-26"
+    # O objetivo continua vazio: a §12 só o reconhece depois de divulgar/promover/anunciar/lançar.
+    assert result.extracted.objective is None
+
+
 @pytest.mark.parametrize(
     ("message", "deadline"),
     [
