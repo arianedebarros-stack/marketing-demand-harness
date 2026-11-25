@@ -31,6 +31,7 @@ from app.llm.base import LLMClient
 from app.llm.fallback import FallbackLLMClient, LLMUnavailableError
 from app.models import DependencyRow, Message, RequestRow, Task
 from app.schemas.api import (
+    AuditEntry,
     ConfirmTypeBody,
     CreateRequestBody,
     DemandPatch,
@@ -99,6 +100,7 @@ def _view(ctx: Context, row: RequestRow) -> RequestView:
     questions = validation.questions if demand.status is S.NEEDS_INFORMATION else []
     return RequestView(
         demand=demand,
+        title=build_title(demand, config=ctx.config),
         next_action=_next_action(demand.status, validation.needs_type_confirmation),
         questions=questions,
         score_band=validation.score.band,
@@ -340,6 +342,16 @@ def _close(
     row.update_demand(moved[0], now=ctx.now)
     ctx.session.commit()
     return _view(ctx, row)
+
+
+# --- Registro (§13, tela 5; D40) ------------------------------------------------------------
+
+
+def list_audit(
+    ctx: Context, *, request_id: uuid.UUID | None, before: int | None, limit: int
+) -> list[AuditEntry]:
+    """Audit log em ordem decrescente. Só leitura: não grava audit."""
+    return audit.recent_entries(ctx.session, request_id=request_id, before=before, limit=limit)
 
 
 # --- Tarefas ---------------------------------------------------------------------------------

@@ -20,9 +20,17 @@ export default function RootLayout({
             <Link href="/" className="font-semibold">
               Marketing Demand Harness
             </Link>
-            <Link href="/" className="text-sm text-indigo-700 hover:underline">
-              Nova demanda
-            </Link>
+            <div className="flex gap-4 text-sm">
+              <Link href="/" className="text-indigo-700 hover:underline">
+                Nova demanda
+              </Link>
+              <Link href="/tarefas" className="text-indigo-700 hover:underline">
+                Quadro de tarefas
+              </Link>
+              <Link href="/registro" className="text-indigo-700 hover:underline">
+                Registro
+              </Link>
+            </div>
           </nav>
         </header>
         <main className="mx-auto max-w-6xl px-6 py-6">{children}</main>

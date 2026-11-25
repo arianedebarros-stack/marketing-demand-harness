@@ -1,6 +1,14 @@
 // Cliente da API do harness (SPEC §9). Toda decisão fica no backend; aqui só HTTP.
 
-import type { AppConfig, ChatMessage, RequestView } from "./types";
+import type {
+  AppConfig,
+  AuditEntry,
+  ChatMessage,
+  DemandPatch,
+  DuplicateConflict,
+  RequestView,
+  Task,
+} from "./types";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -80,4 +88,60 @@ export function confirmType(id: string, taskType: string): Promise<RequestView> 
 
 export function getConfig(): Promise<AppConfig> {
   return request("/config");
+}
+
+// --- Approval Gate (§13, tela 3) ---------------------------------------------------------------
+
+export function approve(id: string, forceNew = false): Promise<RequestView> {
+  return request(`/requests/${id}/approve`, { method: "POST", body: { force_new: forceNew } });
+}
+
+export function linkExisting(id: string, taskId: number): Promise<RequestView> {
+  return request(`/requests/${id}/link-existing`, { method: "POST", body: { task_id: taskId } });
+}
+
+export function cancelRequest(id: string): Promise<RequestView> {
+  return request(`/requests/${id}/cancel`, { method: "POST" });
+}
+
+export function patchRequest(id: string, patch: DemandPatch): Promise<RequestView> {
+  return request(`/requests/${id}`, { method: "PATCH", body: patch });
+}
+
+/** O 409 de `approve` com a tarefa parecida, quando for esse o erro. */
+export function duplicateConflict(exc: unknown): DuplicateConflict | null {
+  if (!(exc instanceof ApiError) || exc.status !== 409) return null;
+  const body = exc.body as Partial<DuplicateConflict> | null;
+  return body?.duplicate && body.task ? (body as DuplicateConflict) : null;
+}
+
+// --- Quadro de tarefas (§13, tela 4) -----------------------------------------------------------
+
+export function listTasks(): Promise<Task[]> {
+  return request("/tasks");
+}
+
+export function resolveDependency(taskId: number, index: number): Promise<Task> {
+  return request(`/tasks/${taskId}/dependencies/${index}/resolve`, { method: "POST" });
+}
+
+export function completeTask(taskId: number): Promise<Task> {
+  return request(`/tasks/${taskId}/complete`, { method: "POST" });
+}
+
+// --- Registro (§13, tela 5; D40) -------------------------------------------------------------
+
+export interface AuditQuery {
+  requestId?: string;
+  before?: number;
+  limit?: number;
+}
+
+export function listAudit(query: AuditQuery = {}): Promise<AuditEntry[]> {
+  const params = new URLSearchParams();
+  if (query.requestId) params.set("request_id", query.requestId);
+  if (query.before !== undefined) params.set("before", String(query.before));
+  if (query.limit !== undefined) params.set("limit", String(query.limit));
+  const search = params.toString();
+  return request(`/audit${search ? `?${search}` : ""}`);
 }

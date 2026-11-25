@@ -50,6 +50,7 @@ class AuditEntry(BaseModel):
 
 class RequestView(BaseModel):
     demand: Demand
+    title: str = ""  # título da tarefa (§8.9), derivado da demanda (D40)
     next_action: NextAction
     questions: list[Question] = Field(default_factory=list)
     score_band: ScoreBand

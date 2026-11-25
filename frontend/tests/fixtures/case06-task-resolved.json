@@ -1,0 +1,26 @@
+{
+  "id": 1,
+  "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+  "external_task_id": "MKT-1",
+  "title": "Arte | Promoção Krona | Construjá",
+  "type": "Arte",
+  "brand": "Construjá",
+  "supplier": "Krona",
+  "campaign": null,
+  "assigned_to": "designer-a",
+  "priority": "Alta",
+  "deadline": "2026-10-20",
+  "blocked": false,
+  "status": "Aberta",
+  "briefing": "TÍTULO: Arte | Promoção Krona | Construjá\nOBJETIVO: Divulgar promoção Krona\nMARCA: Construjá\nPÚBLICO: Lojistas\nCANAL: Instagram\nFORMATO: Feed\nDIMENSÃO: 1080 × 1350 px\nMENSAGEM E TOM: Comercial, objetiva e direcionada à reposição/abastecimento\nPRODUTOS: Conforme planilha anexada\nPREÇOS: Conforme planilha anexada\nVIGÊNCIA: 23/10/2026\nCTA: Peça pelo app, site ou com seu representante.\nPRAZO: 20/10/2026\nPRIORIDADE: Alta\nRESPONSÁVEL: Designer A\nAPROVAÇÃO: Gestor de Marketing\nDEPENDÊNCIAS: Aprovação de preço (Compras, Pendente)\nARQUIVOS: Logo Krona; Imagens dos produtos\nBRIEFING SCORE: 100%",
+  "briefing_score": 100,
+  "created_at": "2026-10-19T12:00:00Z",
+  "dependencies": [
+    {
+      "index": 0,
+      "description": "Aprovação de preço",
+      "owner": "Compras",
+      "status": "Resolvida"
+    }
+  ]
+}

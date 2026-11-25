@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "role": "requester",
+    "text": "Preciso de uma arte da Krona para amanhã.",
+    "created_at": "2026-10-19T12:00:00Z"
+  },
+  {
+    "id": 2,
+    "role": "assistant",
+    "text": "Para qual marca é a demanda?\nQual é o objetivo da peça?\nEm qual canal e formato a peça será publicada (ex.: Instagram Feed)?\nQuais produtos e preços devem aparecer? Se estiverem em uma planilha, pode anexá-la.\nAté quando vale a promoção?",
+    "created_at": "2026-10-19T12:00:00Z"
+  },
+  {
+    "id": 3,
+    "role": "requester",
+    "text": "Construjá",
+    "created_at": "2026-10-19T12:00:00Z"
+  },
+  {
+    "id": 4,
+    "role": "assistant",
+    "text": "Qual é o objetivo da peça?\nEm qual canal e formato a peça será publicada (ex.: Instagram Feed)?\nQuais produtos e preços devem aparecer? Se estiverem em uma planilha, pode anexá-la.\nAté quando vale a promoção?",
+    "created_at": "2026-10-19T12:00:00Z"
+  },
+  {
+    "id": 5,
+    "role": "requester",
+    "text": "Instagram feed. São 3 produtos da planilha anexada. Promoção válida até sexta. Ainda aguardando aprovação de preço por Compras.",
+    "created_at": "2026-10-19T12:00:00Z"
+  }
+]

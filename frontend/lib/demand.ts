@@ -5,10 +5,12 @@ import type {
   AppConfig,
   AuditEntry,
   Demand,
+  DemandPatch,
   FieldOrigin,
   PriorityLevel,
   RequestStatus,
   RequestView,
+  Task,
 } from "./types";
 
 // --- Stepper -------------------------------------------------------------------------------
@@ -208,4 +210,84 @@ export function brandChips(view: RequestView, config: AppConfig): string[] {
 /** Tipos do config quando a API pede a confirmação do tipo. */
 export function typeChips(view: RequestView, config: AppConfig): string[] {
   return view.next_action === "CONFIRM_TYPE" ? Object.keys(config.task_types.types) : [];
+}
+
+// --- Approval Gate (§13, tela 3) -------------------------------------------------------------
+
+/** Estados em que o gate aparece: aguardando aprovação, ou aprovada com a criação falhando (D04). */
+export function showsApprovalGate(status: RequestStatus): boolean {
+  return status === "PENDING_APPROVAL" || status === "APPROVED";
+}
+
+/** Níveis de prioridade na ordem de `priorities.json` (`bands`). */
+export function priorityLevels(config: AppConfig): PriorityLevel[] {
+  return config.priorities.bands.map((band) => band.level);
+}
+
+export const DUPLICATE_CRITERIA_LABELS: Record<string, string> = {
+  same_brand_type_supplier: "mesma marca, tipo e fornecedor",
+  same_brand_type_campaign: "mesma marca, tipo e campanha",
+  similar_title: "título parecido",
+};
+
+/** Valores do formulário "Editar": vazio = automático (sem trava do gestor). */
+export interface GateForm {
+  priority: string;
+  assigned_to: string;
+  deadline: string;
+}
+
+export function gateForm(demand: Demand): GateForm {
+  return {
+    priority: demand.priority_locked ? (demand.priority ?? "") : "",
+    assigned_to: demand.assignment_locked ? (demand.assigned_to ?? "") : "",
+    deadline: typeof demand.deadline === "string" ? demand.deadline : "",
+  };
+}
+
+/** Só os campos alterados; vazio vira `null` (destrava ou limpa, D36). */
+export function gatePatch(before: GateForm, after: GateForm): DemandPatch {
+  const patch: DemandPatch = {};
+  if (after.priority !== before.priority) {
+    patch.priority = (after.priority || null) as PriorityLevel | null;
+  }
+  if (after.assigned_to !== before.assigned_to) patch.assigned_to = after.assigned_to || null;
+  if (after.deadline !== before.deadline) patch.deadline = after.deadline || null;
+  return patch;
+}
+
+// --- Quadro de tarefas (§13, tela 4) -------------------------------------------------------
+
+export type TaskStatusLabel = "Aberta" | "Bloqueada" | "Concluída";
+
+/** Bloqueada é a flag `blocked` de uma tarefa aberta (D03). */
+export function taskStatus(task: Task): TaskStatusLabel {
+  if (task.status === "Concluída") return "Concluída";
+  return task.blocked ? "Bloqueada" : "Aberta";
+}
+
+// --- Registro (§13, tela 5) ------------------------------------------------------------------
+
+export const ACTOR_LABELS: Record<AuditEntry["actor"], string> = {
+  llm: "IA",
+  harness: "Harness",
+  user: "Usuário",
+  manager: "Gestor",
+};
+
+/** Mais recente primeiro (pelo id, que segue a ordem de gravação). */
+export function newestFirst(entries: AuditEntry[]): AuditEntry[] {
+  return [...entries].sort((a, b) => b.id - a.id);
+}
+
+const dateTime = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "medium" });
+
+export function formatDateTime(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? iso : dateTime.format(date);
+}
+
+/** Valor do audit em JSON compacto; vazio quando não há valor. */
+export function auditValue(value: unknown): string {
+  return value === null || value === undefined ? "" : JSON.stringify(value);
 }

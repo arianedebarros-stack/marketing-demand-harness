@@ -1,13 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
+  auditValue,
   brandChips,
   canSendMessage,
   currentStep,
   fieldRows,
   formatDate,
+  gateForm,
+  gatePatch,
   latestAssignment,
   latestPriority,
   memberName,
+  newestFirst,
+  priorityLevels,
+  showsApprovalGate,
   STEPS,
   typeChips,
 } from "@/lib/demand";
@@ -163,5 +169,52 @@ describe("memberName", () => {
   it("usa o nome da equipe e cai no id quando não encontra", () => {
     expect(memberName("designer-a", appConfig())).toBe("Designer A");
     expect(memberName("fulano", appConfig())).toBe("fulano");
+  });
+});
+
+describe("Approval Gate: formulário Editar (§14, D36)", () => {
+  it("o gate só aparece aguardando aprovação ou quando a criação falhou (D04)", () => {
+    expect(showsApprovalGate("PENDING_APPROVAL")).toBe(true);
+    expect(showsApprovalGate("APPROVED")).toBe(true);
+    for (const status of ["NEEDS_INFORMATION", "TASK_CREATED", "CANCELLED"] as const) {
+      expect(showsApprovalGate(status)).toBe(false);
+    }
+  });
+
+  it("níveis de prioridade vêm do config, na ordem das faixas", () => {
+    expect(priorityLevels(appConfig())).toEqual(["Crítica", "Alta", "Normal", "Baixa"]);
+  });
+
+  it("o formulário começa em Automático quando o gestor não travou", () => {
+    const demand = finalView().demand;
+    expect(gateForm(demand)).toEqual({ priority: "", assigned_to: "", deadline: "2026-10-20" });
+    demand.priority_locked = true;
+    demand.assignment_locked = true;
+    expect(gateForm(demand)).toMatchObject({ priority: "Alta", assigned_to: "designer-a" });
+  });
+
+  it("o PATCH leva só o que mudou; vazio vira null", () => {
+    const before = { priority: "Alta", assigned_to: "", deadline: "2026-10-20" };
+
+    expect(gatePatch(before, before)).toEqual({});
+    expect(gatePatch(before, { ...before, priority: "" })).toEqual({ priority: null });
+    expect(gatePatch(before, { ...before, assigned_to: "designer-b", deadline: "" })).toEqual({
+      assigned_to: "designer-b",
+      deadline: null,
+    });
+  });
+});
+
+describe("Registro", () => {
+  it("ordena do mais recente ao mais antigo sem alterar a lista original", () => {
+    const entries = finalView().audit;
+    const sorted = newestFirst(entries);
+    expect(sorted[0].id).toBe(Math.max(...entries.map((e) => e.id)));
+    expect(entries[0].id).toBeLessThan(entries[1].id);
+  });
+
+  it("valores do audit em JSON compacto; vazio sem valor", () => {
+    expect(auditValue({ a: 1 })).toBe('{"a":1}');
+    expect(auditValue(null)).toBe("");
   });
 });

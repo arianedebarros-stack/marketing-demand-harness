@@ -87,6 +87,8 @@ export interface AuditEntry {
 
 export interface RequestView {
   demand: Demand;
+  /** Título da tarefa (§8.9), calculado pelo backend (D40). */
+  title: string;
   next_action: NextAction;
   questions: Question[];
   score_band: ScoreBand;
@@ -99,6 +101,48 @@ export interface ChatMessage {
   role: "requester" | "assistant";
   text: string;
   created_at: string;
+}
+
+/** GET /tasks (§9, D36). `index` é o usado em `.../dependencies/{index}/resolve`. */
+export interface TaskDependency {
+  index: number;
+  description: string;
+  owner: string;
+  status: "Pendente" | "Resolvida";
+}
+
+export interface Task {
+  id: number;
+  request_id: string;
+  external_task_id: string | null;
+  title: string;
+  type: string;
+  brand: string | null;
+  supplier: string | null;
+  campaign: string | null;
+  assigned_to: string | null;
+  priority: PriorityLevel | null;
+  deadline: string | null;
+  blocked: boolean;
+  status: "Aberta" | "Concluída";
+  briefing: string;
+  briefing_score: number;
+  created_at: string;
+  dependencies: TaskDependency[];
+}
+
+/** Corpo do 409 de `approve` quando há tarefa aberta parecida (§9, caso 05). */
+export interface DuplicateConflict {
+  detail: string;
+  duplicate: DuplicateCandidate;
+  task: Task;
+}
+
+/** Campos que o Approval Gate edita (§14; PATCH com origem manager, D36). */
+export interface DemandPatch {
+  priority?: PriorityLevel | null;
+  assigned_to?: string | null;
+  deadline?: string | null;
 }
 
 export interface TeamMember {
@@ -118,5 +162,6 @@ export interface AppConfig {
     [key: string]: unknown;
   };
   team: TeamMember[];
+  priorities: { bands: { level: PriorityLevel; min: number }[]; [key: string]: unknown };
   [key: string]: unknown;
 }

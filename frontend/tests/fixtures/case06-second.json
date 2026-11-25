@@ -1,0 +1,626 @@
+{
+  "demand": {
+    "company": null,
+    "brand": "Construjá",
+    "campaign": null,
+    "supplier": "Krona",
+    "objective": null,
+    "audience": "Lojistas",
+    "message_tone": "Comercial, objetiva e direcionada à reposição/abastecimento",
+    "channel": null,
+    "format": null,
+    "dimensions": null,
+    "product": null,
+    "price": null,
+    "validity": null,
+    "cta": "Peça pelo app, site ou com seu representante.",
+    "deadline": "2026-10-20",
+    "duration": null,
+    "concept": null,
+    "location": null,
+    "participants": null,
+    "shoot_date": null,
+    "headline": null,
+    "landing_page": null,
+    "link": null,
+    "publish_period": null,
+    "size": null,
+    "quantity": null,
+    "material": null,
+    "finishing": null,
+    "event_name": null,
+    "event_date": null,
+    "event_time": null,
+    "participants_count": null,
+    "budget": null,
+    "deliverables": null,
+    "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+    "requester": "Ana",
+    "department": "Comercial",
+    "task_type": "Arte",
+    "priority": null,
+    "priority_score": null,
+    "priority_locked": false,
+    "assigned_to": null,
+    "assignment_locked": false,
+    "approver": null,
+    "dependencies": [],
+    "required_files": [
+      {
+        "name": "Logo Krona",
+        "origin": "rule"
+      },
+      {
+        "name": "Imagens dos produtos",
+        "origin": "rule"
+      }
+    ],
+    "missing_information": [
+      "objective",
+      "channel",
+      "format",
+      "product",
+      "price",
+      "validity"
+    ],
+    "is_promotional": true,
+    "published_error": false,
+    "briefing_score": 45,
+    "classification_confidence": 0.92,
+    "type_confirmed": false,
+    "status": "NEEDS_INFORMATION",
+    "field_origin": {
+      "cta": "rule",
+      "brand": "message",
+      "audience": "rule",
+      "deadline": "llm",
+      "supplier": "message",
+      "requester": "requester",
+      "task_type": "llm",
+      "department": "requester",
+      "message_tone": "rule",
+      "is_promotional": "rule"
+    },
+    "external_task_id": null,
+    "duplicate_of": null
+  },
+  "title": "Arte | Promoção Krona | Construjá",
+  "next_action": "REQUEST_INFORMATION",
+  "questions": [
+    {
+      "fields": [
+        "objective"
+      ],
+      "text": "Qual é o objetivo da peça?"
+    },
+    {
+      "fields": [
+        "channel",
+        "format"
+      ],
+      "text": "Em qual canal e formato a peça será publicada (ex.: Instagram Feed)?"
+    },
+    {
+      "fields": [
+        "product",
+        "price"
+      ],
+      "text": "Quais produtos e preços devem aparecer? Se estiverem em uma planilha, pode anexá-la."
+    },
+    {
+      "fields": [
+        "validity"
+      ],
+      "text": "Até quando vale a promoção?"
+    }
+  ],
+  "score_band": "Incompleto",
+  "audit": [
+    {
+      "id": 1,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "user",
+      "action": "message_received",
+      "previous_value": null,
+      "new_value": {
+        "text": "Preciso de uma arte da Krona para amanhã."
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 2,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "llm",
+      "action": "interpretation",
+      "previous_value": null,
+      "new_value": {
+        "output": {
+          "files": [],
+          "extracted": {
+            "cta": null,
+            "link": null,
+            "size": null,
+            "brand": null,
+            "price": null,
+            "budget": null,
+            "format": null,
+            "channel": null,
+            "company": null,
+            "concept": null,
+            "product": null,
+            "audience": null,
+            "campaign": null,
+            "deadline": "2026-10-20",
+            "duration": null,
+            "headline": null,
+            "location": null,
+            "material": null,
+            "quantity": null,
+            "supplier": "Krona",
+            "validity": null,
+            "finishing": null,
+            "objective": null,
+            "dimensions": null,
+            "event_date": null,
+            "event_name": null,
+            "event_time": null,
+            "shoot_date": null,
+            "deliverables": null,
+            "landing_page": null,
+            "message_tone": null,
+            "participants": null,
+            "publish_period": null,
+            "participants_count": null
+          },
+          "dependencies": [],
+          "classification": {
+            "type": "Arte",
+            "confidence": 0.92
+          },
+          "is_promotional": false,
+          "published_error": null
+        },
+        "provider": "fake"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 3,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "llm",
+      "action": "classification",
+      "previous_value": {
+        "type": null,
+        "confidence": 0.0
+      },
+      "new_value": {
+        "type": "Arte",
+        "applied": true,
+        "confidence": 0.92
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 4,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "field_registered",
+      "previous_value": {
+        "field": "supplier",
+        "value": null,
+        "origin": null
+      },
+      "new_value": {
+        "field": "supplier",
+        "value": "Krona",
+        "origin": "message"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 5,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "field_registered",
+      "previous_value": {
+        "field": "deadline",
+        "value": null,
+        "origin": null
+      },
+      "new_value": {
+        "field": "deadline",
+        "value": "2026-10-20",
+        "origin": "llm"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 6,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "field_registered",
+      "previous_value": {
+        "field": "task_type",
+        "value": null,
+        "origin": null
+      },
+      "new_value": {
+        "field": "task_type",
+        "value": "Arte",
+        "origin": "llm"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 7,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "field_registered",
+      "previous_value": {
+        "field": "is_promotional",
+        "value": false,
+        "origin": null
+      },
+      "new_value": {
+        "field": "is_promotional",
+        "value": false,
+        "origin": "llm"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 8,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "status_transition",
+      "previous_value": {
+        "status": "RECEIVED"
+      },
+      "new_value": {
+        "status": "PARSED"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 9,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "status_transition",
+      "previous_value": {
+        "status": "PARSED"
+      },
+      "new_value": {
+        "status": "VALIDATING"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 10,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "rule_applied",
+      "previous_value": {
+        "field": "is_promotional",
+        "value": false
+      },
+      "new_value": {
+        "rule": "supplier_promotional",
+        "value": true
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 11,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "rule_applied",
+      "previous_value": {
+        "field": "required_files",
+        "value": []
+      },
+      "new_value": {
+        "rule": "promo_supplier_files",
+        "value": [
+          {
+            "name": "Logo Krona",
+            "origin": "rule"
+          },
+          {
+            "name": "Imagens dos produtos",
+            "origin": "rule"
+          }
+        ]
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 12,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "briefing_score",
+      "previous_value": {
+        "score": 0
+      },
+      "new_value": {
+        "band": "Incompleto",
+        "score": 18,
+        "missing": [
+          "brand",
+          "objective",
+          "audience",
+          "message_tone",
+          "channel",
+          "format",
+          "product",
+          "price",
+          "validity"
+        ]
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 13,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "status_transition",
+      "previous_value": {
+        "status": "VALIDATING"
+      },
+      "new_value": {
+        "status": "NEEDS_INFORMATION"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 14,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "user",
+      "action": "message_received",
+      "previous_value": null,
+      "new_value": {
+        "text": "Construjá"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 15,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "llm",
+      "action": "interpretation",
+      "previous_value": null,
+      "new_value": {
+        "output": {
+          "files": [],
+          "extracted": {
+            "cta": null,
+            "link": null,
+            "size": null,
+            "brand": "Construjá",
+            "price": null,
+            "budget": null,
+            "format": null,
+            "channel": null,
+            "company": null,
+            "concept": null,
+            "product": null,
+            "audience": null,
+            "campaign": null,
+            "deadline": "2026-10-20",
+            "duration": null,
+            "headline": null,
+            "location": null,
+            "material": null,
+            "quantity": null,
+            "supplier": "Krona",
+            "validity": null,
+            "finishing": null,
+            "objective": null,
+            "dimensions": null,
+            "event_date": null,
+            "event_name": null,
+            "event_time": null,
+            "shoot_date": null,
+            "deliverables": null,
+            "landing_page": null,
+            "message_tone": null,
+            "participants": null,
+            "publish_period": null,
+            "participants_count": null
+          },
+          "dependencies": [],
+          "classification": {
+            "type": "Arte",
+            "confidence": 0.92
+          },
+          "is_promotional": false,
+          "published_error": null
+        },
+        "provider": "fake"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 16,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "llm",
+      "action": "classification",
+      "previous_value": {
+        "type": "Arte",
+        "confidence": 0.92
+      },
+      "new_value": {
+        "type": "Arte",
+        "applied": true,
+        "confidence": 0.92
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 17,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "field_registered",
+      "previous_value": {
+        "field": "brand",
+        "value": null,
+        "origin": null
+      },
+      "new_value": {
+        "field": "brand",
+        "value": "Construjá",
+        "origin": "message"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 18,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "field_registered",
+      "previous_value": {
+        "field": "is_promotional",
+        "value": true,
+        "origin": "rule"
+      },
+      "new_value": {
+        "field": "is_promotional",
+        "value": false,
+        "origin": "llm"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 19,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "status_transition",
+      "previous_value": {
+        "status": "NEEDS_INFORMATION"
+      },
+      "new_value": {
+        "status": "VALIDATING"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 20,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "rule_applied",
+      "previous_value": {
+        "field": "is_promotional",
+        "value": false
+      },
+      "new_value": {
+        "rule": "supplier_promotional",
+        "value": true
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 21,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "rule_applied",
+      "previous_value": {
+        "field": "audience",
+        "value": null
+      },
+      "new_value": {
+        "rule": "brand_audience",
+        "value": "Lojistas"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 22,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "rule_applied",
+      "previous_value": {
+        "field": "message_tone",
+        "value": null
+      },
+      "new_value": {
+        "rule": "brand_tone",
+        "value": "Comercial, objetiva e direcionada à reposição/abastecimento"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 23,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "rule_applied",
+      "previous_value": {
+        "field": "cta",
+        "value": null
+      },
+      "new_value": {
+        "rule": "brand_cta",
+        "value": "Peça pelo app, site ou com seu representante."
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 24,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "briefing_score",
+      "previous_value": {
+        "score": 18
+      },
+      "new_value": {
+        "band": "Incompleto",
+        "score": 45,
+        "missing": [
+          "objective",
+          "channel",
+          "format",
+          "product",
+          "price",
+          "validity"
+        ]
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    },
+    {
+      "id": 25,
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
+      "task_id": null,
+      "actor": "harness",
+      "action": "status_transition",
+      "previous_value": {
+        "status": "VALIDATING"
+      },
+      "new_value": {
+        "status": "NEEDS_INFORMATION"
+      },
+      "timestamp": "2026-10-19T12:00:00Z"
+    }
+  ]
+}

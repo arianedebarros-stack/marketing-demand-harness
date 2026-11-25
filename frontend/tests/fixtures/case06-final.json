@@ -34,7 +34,7 @@
     "participants_count": null,
     "budget": null,
     "deliverables": null,
-    "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+    "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
     "requester": "Ana",
     "department": "Comercial",
     "task_type": "Arte",
@@ -93,13 +93,14 @@
     "external_task_id": null,
     "duplicate_of": null
   },
+  "title": "Arte | Promoção Krona | Construjá",
   "next_action": "AWAIT_APPROVAL",
   "questions": [],
   "score_band": "Pronto para produção",
   "audit": [
     {
       "id": 1,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "user",
       "action": "message_received",
@@ -111,7 +112,7 @@
     },
     {
       "id": 2,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "llm",
       "action": "interpretation",
@@ -169,7 +170,7 @@
     },
     {
       "id": 3,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "llm",
       "action": "classification",
@@ -186,7 +187,7 @@
     },
     {
       "id": 4,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -204,7 +205,7 @@
     },
     {
       "id": 5,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -222,7 +223,7 @@
     },
     {
       "id": 6,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -240,7 +241,7 @@
     },
     {
       "id": 7,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -258,7 +259,7 @@
     },
     {
       "id": 8,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "status_transition",
@@ -272,7 +273,7 @@
     },
     {
       "id": 9,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "status_transition",
@@ -286,7 +287,7 @@
     },
     {
       "id": 10,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "rule_applied",
@@ -302,7 +303,7 @@
     },
     {
       "id": 11,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "rule_applied",
@@ -327,7 +328,7 @@
     },
     {
       "id": 12,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "briefing_score",
@@ -353,7 +354,7 @@
     },
     {
       "id": 13,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "status_transition",
@@ -367,7 +368,7 @@
     },
     {
       "id": 14,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "user",
       "action": "message_received",
@@ -379,7 +380,7 @@
     },
     {
       "id": 15,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "llm",
       "action": "interpretation",
@@ -437,7 +438,7 @@
     },
     {
       "id": 16,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "llm",
       "action": "classification",
@@ -454,7 +455,7 @@
     },
     {
       "id": 17,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -472,7 +473,7 @@
     },
     {
       "id": 18,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -490,7 +491,7 @@
     },
     {
       "id": 19,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "status_transition",
@@ -504,7 +505,7 @@
     },
     {
       "id": 20,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "rule_applied",
@@ -520,7 +521,7 @@
     },
     {
       "id": 21,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "rule_applied",
@@ -536,7 +537,7 @@
     },
     {
       "id": 22,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "rule_applied",
@@ -552,7 +553,7 @@
     },
     {
       "id": 23,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "rule_applied",
@@ -568,7 +569,7 @@
     },
     {
       "id": 24,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "briefing_score",
@@ -591,7 +592,7 @@
     },
     {
       "id": 25,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "status_transition",
@@ -605,7 +606,7 @@
     },
     {
       "id": 26,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "user",
       "action": "message_received",
@@ -617,7 +618,7 @@
     },
     {
       "id": 27,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "llm",
       "action": "interpretation",
@@ -681,7 +682,7 @@
     },
     {
       "id": 28,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "llm",
       "action": "classification",
@@ -698,7 +699,7 @@
     },
     {
       "id": 29,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -716,7 +717,7 @@
     },
     {
       "id": 30,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -734,7 +735,7 @@
     },
     {
       "id": 31,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -752,7 +753,7 @@
     },
     {
       "id": 32,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -770,7 +771,7 @@
     },
     {
       "id": 33,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -788,7 +789,7 @@
     },
     {
       "id": 34,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -806,7 +807,7 @@
     },
     {
       "id": 35,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -824,7 +825,7 @@
     },
     {
       "id": 36,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -848,7 +849,7 @@
     },
     {
       "id": 37,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "status_transition",
@@ -862,7 +863,7 @@
     },
     {
       "id": 38,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "rule_applied",
@@ -878,7 +879,7 @@
     },
     {
       "id": 39,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "briefing_score",
@@ -894,7 +895,7 @@
     },
     {
       "id": 40,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "status_transition",
@@ -908,7 +909,7 @@
     },
     {
       "id": 41,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "status_transition",
@@ -922,7 +923,7 @@
     },
     {
       "id": 42,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "priority_calculated",
@@ -949,7 +950,7 @@
     },
     {
       "id": 43,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "assignment_calculated",
@@ -979,7 +980,7 @@
     },
     {
       "id": 44,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "dependencies_checked",
@@ -992,7 +993,7 @@
     },
     {
       "id": 45,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "no_duplicate",
@@ -1002,7 +1003,7 @@
     },
     {
       "id": 46,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -1018,7 +1019,7 @@
     },
     {
       "id": 47,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -1034,7 +1035,7 @@
     },
     {
       "id": 48,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "field_registered",
@@ -1050,7 +1051,7 @@
     },
     {
       "id": 49,
-      "request_id": "89bb9945-0cf2-4bda-a563-6d82c710b659",
+      "request_id": "81c60705-2f0a-4ffd-bea9-bec6a9ec8eea",
       "task_id": null,
       "actor": "harness",
       "action": "status_transition",

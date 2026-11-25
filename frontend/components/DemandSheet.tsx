@@ -35,7 +35,7 @@ const ORIGIN_STYLES: Record<FieldOrigin, string> = {
   requester: "bg-sky-50 text-sky-700 ring-sky-200",
 };
 
-function OriginTag({ origin }: { origin: FieldOrigin | null }) {
+export function OriginTag({ origin }: { origin: FieldOrigin | null }) {
   if (!origin) return null;
   return (
     <span

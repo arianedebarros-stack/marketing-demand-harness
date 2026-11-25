@@ -112,6 +112,22 @@ def entries_for_task(session: Session, task_id: int) -> list[AuditEntry]:
     return [_entry(row) for row in rows]
 
 
+def recent_entries(
+    session: Session,
+    *,
+    request_id: uuid.UUID | None = None,
+    before: int | None = None,
+    limit: int,
+) -> list[AuditEntry]:
+    """Linhas mais recentes primeiro; ``before`` é o cursor (só ids menores que ele)."""
+    query = select(AuditLog).order_by(AuditLog.id.desc()).limit(limit)
+    if request_id is not None:
+        query = query.where(AuditLog.request_id == request_id)
+    if before is not None:
+        query = query.where(AuditLog.id < before)
+    return [_entry(row) for row in session.scalars(query)]
+
+
 def _json(value: Mapping[str, Any] | None) -> dict[str, Any] | None:
     """Valores em forma JSON (datas, UUIDs…); payload vazio vira NULL."""
     if not value:

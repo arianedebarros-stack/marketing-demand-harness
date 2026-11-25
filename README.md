@@ -23,12 +23,14 @@ make dev
 make test
 ```
 
-### Telas no navegador (T18)
+### Telas no navegador (T18, T19)
 
 Com `make dev` rodando, abra <http://localhost:3000>:
 
 - **Nova demanda** (`/`): nome, departamento e o pedido em texto livre.
-- **Demanda** (`/demandas/<id>`): o chat à esquerda (com chips de marca e de confirmação de tipo) e a ficha ao lado (estado, Briefing Score, campos com a origem, faltantes e triagem).
+- **Demanda** (`/demandas/<id>`): o chat à esquerda (com chips de marca e de confirmação de tipo) e a ficha ao lado (estado, Briefing Score, campos com a origem, faltantes e triagem). Quando a demanda chega à aprovação, aparece o **Approval Gate** (título, responsável, prioridade, prazo e score) com **Aprovar e criar**, **Editar** (prioridade, responsável e prazo, com origem Gestor) e **Cancelar**. Se houver tarefa aberta parecida, o alerta oferece **Usar existente** ou **Criar nova**.
+- **Quadro de tarefas** (`/tarefas`): tarefas com status Aberta, Bloqueada ou Concluída. O detalhe mostra o briefing, as dependências (com **Resolver**), **Concluir tarefa** e o histórico da demanda.
+- **Registro** (`/registro`): o audit log inteiro, do mais recente ao mais antigo. `/registro?demanda=<id>` mostra só uma demanda.
 
 O frontend chama a API em `http://localhost:8000` (mude com `NEXT_PUBLIC_API_URL` em `frontend/.env.local`). A API aceita o navegador vindo de `CORS_ORIGINS` (padrão `http://localhost:3000`). Para testar sem gastar com o LLM, use `LLM_PROVIDER=fake` no `.env`.
 

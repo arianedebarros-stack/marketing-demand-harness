@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Annotated, Any
 from zoneinfo import ZoneInfo
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.api import deps
@@ -16,6 +16,7 @@ from app.integrations.base import TaskManagerConnector
 from app.llm.base import LLMClient
 from app.schemas.api import (
     ApproveBody,
+    AuditEntry,
     ConfirmTypeBody,
     CreateRequestBody,
     DemandPatch,
@@ -29,6 +30,9 @@ from app.services import requests as service
 from app.services.requests import Context
 
 router = APIRouter()
+
+AUDIT_DEFAULT_LIMIT = 200
+AUDIT_MAX_LIMIT = 1000
 
 
 def _context(
@@ -120,6 +124,17 @@ def cancel(request_id: uuid.UUID, ctx: Ctx) -> RequestView:
 @router.post("/requests/{request_id}/reject")
 def reject(request_id: uuid.UUID, ctx: Ctx) -> RequestView:
     return service.reject(ctx, request_id)
+
+
+@router.get("/audit")
+def list_audit(
+    ctx: Ctx,
+    request_id: uuid.UUID | None = None,
+    before: Annotated[int | None, Query(ge=1)] = None,
+    limit: Annotated[int, Query(ge=1, le=AUDIT_MAX_LIMIT)] = AUDIT_DEFAULT_LIMIT,
+) -> list[AuditEntry]:
+    """Registro (§13, tela 5; D40): audit log em ordem decrescente, só leitura."""
+    return service.list_audit(ctx, request_id=request_id, before=before, limit=limit)
 
 
 @router.get("/tasks")

@@ -1,14 +1,23 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   ApiError,
+  approve,
+  cancelRequest,
+  completeTask,
   confirmType,
+  duplicateConflict,
+  linkExisting,
+  listAudit,
+  listTasks,
+  patchRequest,
+  resolveDependency,
   createRequest,
   getConfig,
   getMessages,
   getRequest,
   sendAnswer,
 } from "@/lib/api";
-import { firstView, jsonResponse } from "./helpers";
+import { dupConflict, firstView, jsonResponse } from "./helpers";
 
 const BASE = "http://localhost:8000";
 
@@ -91,5 +100,70 @@ describe("cliente da API (§9)", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
 
     await expect(getConfig()).rejects.toThrow(/Não foi possível falar com a API/);
+  });
+
+  it("rotas do Approval Gate: approve, link-existing, cancel e PATCH", async () => {
+    const fetchMock = stubFetch(jsonResponse(firstView()));
+
+    await approve("abc");
+    expect(lastCall(fetchMock)[0]).toBe(`${BASE}/requests/abc/approve`);
+    expect(JSON.parse(String(lastCall(fetchMock)[1].body))).toEqual({ force_new: false });
+
+    fetchMock.mockResolvedValue(jsonResponse(firstView()));
+    await approve("abc", true);
+    expect(JSON.parse(String(lastCall(fetchMock)[1].body))).toEqual({ force_new: true });
+
+    fetchMock.mockResolvedValue(jsonResponse(firstView()));
+    await linkExisting("abc", 7);
+    expect(lastCall(fetchMock)[0]).toBe(`${BASE}/requests/abc/link-existing`);
+    expect(JSON.parse(String(lastCall(fetchMock)[1].body))).toEqual({ task_id: 7 });
+
+    fetchMock.mockResolvedValue(jsonResponse(firstView()));
+    await cancelRequest("abc");
+    expect(lastCall(fetchMock)).toEqual([`${BASE}/requests/abc/cancel`, expect.objectContaining({ method: "POST" })]);
+
+    fetchMock.mockResolvedValue(jsonResponse(firstView()));
+    await patchRequest("abc", { priority: "Crítica", deadline: null });
+    const [url, init] = lastCall(fetchMock);
+    expect(url).toBe(`${BASE}/requests/abc`);
+    expect(init.method).toBe("PATCH");
+    expect(JSON.parse(String(init.body))).toEqual({ priority: "Crítica", deadline: null });
+  });
+
+  it("duplicateConflict reconhece o 409 de duplicidade e ignora outros erros", async () => {
+    stubFetch(jsonResponse(dupConflict(), 409));
+    const error = await approve("abc").catch((e: unknown) => e);
+
+    expect(duplicateConflict(error)?.duplicate.task_id).toBe(dupConflict().duplicate.task_id);
+    expect(duplicateConflict(new ApiError(409, "transição inválida", { detail: "x" }))).toBeNull();
+    expect(duplicateConflict(new ApiError(502, "falhou", dupConflict()))).toBeNull();
+    expect(duplicateConflict(new Error("x"))).toBeNull();
+  });
+
+  it("rotas do quadro de tarefas", async () => {
+    const fetchMock = stubFetch(jsonResponse([]));
+
+    await listTasks();
+    expect(lastCall(fetchMock)[0]).toBe(`${BASE}/tasks`);
+
+    fetchMock.mockResolvedValue(jsonResponse({}));
+    await resolveDependency(3, 0);
+    expect(lastCall(fetchMock)[0]).toBe(`${BASE}/tasks/3/dependencies/0/resolve`);
+    expect(lastCall(fetchMock)[1].method).toBe("POST");
+
+    fetchMock.mockResolvedValue(jsonResponse({}));
+    await completeTask(3);
+    expect(lastCall(fetchMock)[0]).toBe(`${BASE}/tasks/3/complete`);
+  });
+
+  it("listAudit monta o filtro, o cursor e o limite (D40)", async () => {
+    const fetchMock = stubFetch(jsonResponse([]));
+
+    await listAudit();
+    expect(lastCall(fetchMock)[0]).toBe(`${BASE}/audit`);
+
+    fetchMock.mockResolvedValue(jsonResponse([]));
+    await listAudit({ requestId: "abc", before: 40, limit: 100 });
+    expect(lastCall(fetchMock)[0]).toBe(`${BASE}/audit?request_id=abc&before=40&limit=100`);
   });
 });

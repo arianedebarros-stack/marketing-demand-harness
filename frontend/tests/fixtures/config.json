@@ -1,18 +1,81 @@
 {
   "brands": {
-    "construja": { "name": "Construjá", "audience": "Lojistas", "tone": "Comercial", "mandatory_cta": "Peça pelo app." },
-    "ferja": { "name": "Ferjá", "audience": "Consumidor final", "tone": "Produto", "mandatory_cta": null }
+    "construja": {
+      "name": "Construjá",
+      "audience": "Lojistas",
+      "tone": "Comercial",
+      "mandatory_cta": "Peça pelo app."
+    },
+    "ferja": {
+      "name": "Ferjá",
+      "audience": "Consumidor final",
+      "tone": "Produto",
+      "mandatory_cta": null
+    }
   },
   "task_types": {
     "approver_default": "Gestor de Marketing",
     "types": {
-      "Arte": { "required": ["channel", "format"], "promo_required": [], "impact": 60 },
-      "Vídeo": { "required": ["duration"], "promo_required": [], "impact": 70 },
-      "Outro": { "required": [], "promo_required": [], "impact": 30 }
+      "Arte": {
+        "required": [
+          "channel",
+          "format"
+        ],
+        "promo_required": [],
+        "impact": 60
+      },
+      "Vídeo": {
+        "required": [
+          "duration"
+        ],
+        "promo_required": [],
+        "impact": 70
+      },
+      "Outro": {
+        "required": [],
+        "promo_required": [],
+        "impact": 30
+      }
     }
   },
   "team": [
-    { "id": "designer-a", "name": "Designer A", "skills": ["Arte"], "capacity": 15, "open_base": 8 },
-    { "id": "designer-b", "name": "Designer B", "skills": ["Arte"], "capacity": 15, "open_base": 12 }
-  ]
+    {
+      "id": "designer-a",
+      "name": "Designer A",
+      "skills": [
+        "Arte"
+      ],
+      "capacity": 15,
+      "open_base": 8
+    },
+    {
+      "id": "designer-b",
+      "name": "Designer B",
+      "skills": [
+        "Arte"
+      ],
+      "capacity": 15,
+      "open_base": 12
+    }
+  ],
+  "priorities": {
+    "bands": [
+      {
+        "level": "Crítica",
+        "min": 90
+      },
+      {
+        "level": "Alta",
+        "min": 70
+      },
+      {
+        "level": "Normal",
+        "min": 40
+      },
+      {
+        "level": "Baixa",
+        "min": 0
+      }
+    ]
+  }
 }

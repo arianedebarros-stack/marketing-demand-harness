@@ -30,8 +30,9 @@ def _view(**overrides: object) -> RequestView:
 def test_request_view_has_spec_shape() -> None:
     view = _view()
 
+    # §9 mais ``title`` (D40), derivado da demanda para o Approval Gate.
     assert set(RequestView.model_fields) == {
-        "demand", "next_action", "questions", "score_band", "audit",
+        "demand", "title", "next_action", "questions", "score_band", "audit",
     }  # fmt: skip
     assert view.questions[0] == Question(fields=["channel", "format"], text="Qual canal e formato?")
     dumped = view.model_dump(mode="json")
