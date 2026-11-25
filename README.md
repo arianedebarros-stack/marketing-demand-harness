@@ -23,6 +23,15 @@ make dev
 make test
 ```
 
+### Telas no navegador (T18)
+
+Com `make dev` rodando, abra <http://localhost:3000>:
+
+- **Nova demanda** (`/`): nome, departamento e o pedido em texto livre.
+- **Demanda** (`/demandas/<id>`): o chat à esquerda (com chips de marca e de confirmação de tipo) e a ficha ao lado (estado, Briefing Score, campos com a origem, faltantes e triagem).
+
+O frontend chama a API em `http://localhost:8000` (mude com `NEXT_PUBLIC_API_URL` em `frontend/.env.local`). A API aceita o navegador vindo de `CORS_ORIGINS` (padrão `http://localhost:3000`). Para testar sem gastar com o LLM, use `LLM_PROVIDER=fake` no `.env`.
+
 ## LLM real da Anthropic (opcional)
 
 O sistema funciona sem chave da API da Anthropic: a interpretação usa o `FakeLLMClient`, que segue regras fixas, e os testes automáticos nunca chamam a API. Sem chave, deixe no `.env`:

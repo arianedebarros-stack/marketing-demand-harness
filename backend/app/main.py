@@ -1,9 +1,11 @@
 """App FastAPI: rotas da §9 e conversão dos erros de domínio em códigos HTTP."""
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.routes import router
+from app.core.config import get_settings
 from app.core.state_machine import InvalidTransition
 from app.llm.fallback import LLMUnavailableError
 from app.services.errors import (
@@ -16,6 +18,13 @@ from app.services.errors import (
 from app.services.triage import TriageNotReadyError
 
 app = FastAPI(title="Marketing Demand Harness")
+# D39: o frontend (Next.js, :3000) chama a API direto do navegador.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_settings().cors_origin_list,
+    allow_methods=["GET", "POST", "PATCH"],
+    allow_headers=["Content-Type"],
+)
 app.include_router(router)
 
 

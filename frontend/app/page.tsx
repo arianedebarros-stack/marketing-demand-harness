@@ -1,10 +1,15 @@
-export default function Home() {
+import { NewRequest } from "@/components/NewRequest";
+
+export default function NewRequestPage() {
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-2xl font-semibold">Marketing Demand Harness</h1>
-      <p className="mt-2 text-sm">
-        As telas de nova demanda, ficha, aprovação, quadro e registro chegam nas tarefas T18 e T19.
-      </p>
-    </main>
+    <div className="mx-auto max-w-2xl space-y-4">
+      <div>
+        <h1 className="text-xl font-semibold">Nova demanda</h1>
+        <p className="text-sm text-slate-600">
+          Descreva o pedido do seu jeito. O harness pergunta só o que faltar para o briefing.
+        </p>
+      </div>
+      <NewRequest />
+    </div>
   );
 }

@@ -56,6 +56,15 @@ class RequestView(BaseModel):
     audit: list[AuditEntry] = Field(default_factory=list)
 
 
+class MessageView(BaseModel):
+    """Uma mensagem do chat (D39): ``requester`` é o solicitante; ``assistant``, as perguntas."""
+
+    id: int
+    role: Literal["requester", "assistant"]
+    text: str
+    created_at: datetime
+
+
 class TaskDependencyView(BaseModel):
     """Dependência da tarefa; ``index`` é o ``{index}`` de ``.../dependencies/{index}/resolve``."""
 

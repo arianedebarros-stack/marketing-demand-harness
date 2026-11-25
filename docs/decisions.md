@@ -352,3 +352,18 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
   - Para facilitar a identificação de duplicatas, o texto da tarefa no Asana (`notes`) é o briefing seguido de uma linha em branco e de `ID DA DEMANDA: <request_id>`. A linha só vai para o Asana; o briefing gravado em `tasks` continua o mesmo.
 - **Fora do escopo da §11.** Responsável no Asana (`assignee`), seções, tags e campos personalizados não são enviados. O responsável continua no briefing (linha RESPONSÁVEL).
 - **Testes.** Todos usam `respx`, que falha o teste em qualquer requisição sem rota simulada, e um token falso. O AC14 está coberto pela API: a aprovação cria a tarefa no Asana simulado com o `gid` como `external_task_id`, e uma falha deixa a demanda em `APPROVED` até a nova tentativa.
+
+**D39 · Detalhes do frontend: Nova demanda e Ficha** (2026-11-25, T18).
+- **Rotas.** `/` é a tela "Nova demanda" (nome, departamento e o primeiro pedido). Depois do `POST /requests`, o navegador vai para `/demandas/<id>`, que mostra o chat ao lado da ficha. Recarregar a página mantém tudo, porque a demanda e o histórico vêm da API.
+- **Histórico do chat: rota nova `GET /requests/{id}/messages`.** A `RequestView` (§9) não traz as mensagens, e o chat precisa delas depois de recarregar. A rota devolve `[{id, role, text, created_at}]` da tabela `messages`, em ordem: `requester` é o solicitante e `assistant` são as perguntas gravadas pela API (D36). É só leitura, não grava audit e responde 404 para demanda inexistente. A `RequestView` não mudou.
+- **CORS.** O navegador (`:3000`) chama a API (`:8000`) direto, como o `NEXT_PUBLIC_API_URL` do `.env.example` já supunha. A API aceita as origens de `CORS_ORIGINS` (lista separada por vírgula, padrão `http://localhost:3000`), com os métodos `GET`, `POST` e `PATCH`.
+- **A UI não decide nada.**
+  - Faltantes vêm de `missing_information`, e não de um novo cálculo dos obrigatórios.
+  - Prioridade com motivos e responsável com cargas vêm da última entrada `priority_calculated`/`priority_locked` e `assignment_calculated`/`assignment_locked` do audit.
+  - Nomes de marca, tipos, equipe e aprovador padrão vêm de `GET /config`.
+  - O stepper agrupa os estados da §7 em 5 etapas: Recebida, Validação, Triagem, Aprovação e Tarefa criada. `CANCELLED`, `REJECTED` e `ERROR` aparecem como aviso fora do fluxo.
+  - O campo de mensagem só fica ativo em `NEEDS_INFORMATION` e `PENDING_APPROVAL`, os estados em que o pipeline aceita mensagem (D31). O backend continua validando.
+- **Chips (§13).** Os chips de marca aparecem quando uma pergunta da vez inclui `brand`, e o clique envia o nome da marca como resposta. Os chips de tipo aparecem com `next_action = CONFIRM_TYPE` e chamam `confirm-type`.
+- **Origem dos campos.** As tags usam os rótulos Mensagem, IA (`llm`), Regra, Harness, Gestor e Solicitante. Datas ISO aparecem em dd/mm/aaaa.
+- **Testes do frontend.** Vitest 5.1.0 com jsdom e Testing Library. O Vitest 3 trazia alertas críticos do `npm audit` (`tinypool`, `@vitest/mocker`), corrigidos só na linha 5. Com ele, o `npm audit` volta aos 2 avisos do `postcss` do `next` já registrados na D21. As fixtures `case06-first.json` e `case06-final.json` são respostas reais da API para o caso 06, com o FakeLLMClient. O npm 9 desta máquina falha (`edgesOut`) ao instalar o Vitest 5 com os peers opcionais, então ele foi instalado com `--legacy-peer-deps`, junto com o `vite@7` explícito. Um `npm install` limpo a partir do `package-lock.json` funciona sem a flag.
+- **Makefile.** `make test` roda os testes do frontend (`npm test`) e depois os do backend, para a última linha continuar sendo `Testes pulados: N` (D35). `make lint` também roda `tsc --noEmit` no frontend.

@@ -21,6 +21,7 @@ from app.schemas.api import (
     DemandPatch,
     LinkExistingBody,
     MessageBody,
+    MessageView,
     RequestView,
     TaskView,
 )
@@ -68,6 +69,12 @@ def create_request(body: CreateRequestBody, ctx: LLMCtx) -> RequestView:
 @router.get("/requests/{request_id}")
 def get_request(request_id: uuid.UUID, ctx: Ctx) -> RequestView:
     return service.get_view(ctx, request_id)
+
+
+@router.get("/requests/{request_id}/messages")
+def list_messages(request_id: uuid.UUID, ctx: Ctx) -> list[MessageView]:
+    """Histórico do chat para o frontend (D39)."""
+    return service.list_messages(ctx, request_id)
 
 
 @router.post("/requests/{request_id}/answers")

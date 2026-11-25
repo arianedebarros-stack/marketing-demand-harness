@@ -66,6 +66,8 @@ class Settings(BaseSettings):
     asana_project_gid: str | None = None
     app_timezone: str = "America/Sao_Paulo"
     config_dir: Path = DEFAULT_CONFIG_DIR
+    # D39: origens do navegador que podem chamar a API (frontend), separadas por vírgula.
+    cors_origins: str = "http://localhost:3000"
 
     @field_validator("anthropic_api_key", "asana_token", "asana_project_gid", mode="before")
     @classmethod
@@ -95,6 +97,10 @@ class Settings(BaseSettings):
     @property
     def timezone(self) -> ZoneInfo:
         return ZoneInfo(self.app_timezone)
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @classmethod
     def load(cls, env_file: Path | None = DEFAULT_ENV_FILE) -> Self:

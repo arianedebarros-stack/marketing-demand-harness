@@ -35,6 +35,7 @@ from app.schemas.api import (
     CreateRequestBody,
     DemandPatch,
     DuplicateConflict,
+    MessageView,
     NextAction,
     RequestView,
     TaskView,
@@ -79,6 +80,16 @@ class Context:
 
 def get_view(ctx: Context, request_id: uuid.UUID) -> RequestView:
     return _view(ctx, _load(ctx, request_id))
+
+
+def list_messages(ctx: Context, request_id: uuid.UUID) -> list[MessageView]:
+    """Histórico do chat, em ordem (D39). Só leitura: não grava audit."""
+    if ctx.session.get(RequestRow, request_id) is None:
+        raise NotFoundError(f"demanda {request_id} não encontrada")
+    rows = ctx.session.scalars(
+        select(Message).where(Message.request_id == request_id).order_by(Message.id)
+    )
+    return [MessageView.model_validate(m, from_attributes=True) for m in rows]
 
 
 def _view(ctx: Context, row: RequestRow) -> RequestView:
