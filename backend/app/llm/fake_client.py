@@ -53,6 +53,11 @@ TYPO_MAX_DISTANCE = 1
 
 ATTACHMENT_VALUE = "Conforme planilha anexada"
 OBJECTIVE_VERBS = r"divulgar|promover|anunciar|lan[cç]ar"
+# Objetivo pelo rótulo (D42): "objetivo: X", "objetivo - X", "objetivo X", "o objetivo é X".
+_OBJECTIVE_LABEL_RE = re.compile(
+    r"\bobjetivos?\b\s*(?:[:\-–—]\s*|\s)(?P<value>[^,.;!?\n]+)", re.IGNORECASE
+)
+_OBJECTIVE_CONNECTOR_RE = re.compile(r"^(?:é|e|eh|seria|será|sera)\b\s*", re.IGNORECASE)
 DEFAULT_OWNER = "Não informado"
 
 _WEEKDAYS = {"segunda": 0, "terca": 1, "quarta": 2, "quinta": 3, "sexta": 4, "sabado": 5,
@@ -201,11 +206,23 @@ def _extract_message(text: str, context: InterpretationContext) -> dict[str, str
             found["deadline"] = resolved.isoformat()
             break
 
-    if objective := re.search(rf"\b(?:{OBJECTIVE_VERBS})\b\s+[^.;!?]+", text, re.IGNORECASE):
-        value = _strip_end(_TEMPORAL_CUT_RE.sub("", objective.group(0)))
-        if value:
-            found["objective"] = _capitalize(value)
+    if objective := _objective(text):
+        found["objective"] = objective
     return found
+
+
+def _objective(text: str) -> str | None:
+    """O rótulo "objetivo" vence (D42); sem ele, o verbo da §12. O prazo é cortado do valor."""
+    if label := _OBJECTIVE_LABEL_RE.search(text):
+        value = _OBJECTIVE_CONNECTOR_RE.sub("", label.group("value").strip())
+        value = _strip_end(_TEMPORAL_CUT_RE.sub("", f" {value}"))
+        if value:
+            return _capitalize(value)
+    if verb := re.search(rf"\b(?:{OBJECTIVE_VERBS})\b\s+[^.;!?]+", text, re.IGNORECASE):
+        value = _strip_end(_TEMPORAL_CUT_RE.sub("", verb.group(0)))
+        if value:
+            return _capitalize(value)
+    return None
 
 
 def _extract_dependencies(text: str) -> list[Dependency]:

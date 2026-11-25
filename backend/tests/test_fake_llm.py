@@ -206,8 +206,8 @@ def test_exact_word_wins_over_approximation() -> None:
     assert result.extracted.channel == "Instagram"
 
 
-def test_manual_test_message_fills_channel_and_deadline() -> None:
-    """Teste manual da autora (2026-11-25): o canal com erro de digitação agora é reconhecido."""
+def test_manual_test_message_fills_objective_channel_and_deadline() -> None:
+    """Teste manual da autora (2026-11-25): objetivo pelo rótulo (D42) e canal com erro (D41)."""
     result = _interpret(
         "objetivo teste, sera no instragram e preciso pra amanha 26/11",
         asked=["objective", "channel", "format", "deadline"],
@@ -216,8 +216,7 @@ def test_manual_test_message_fills_channel_and_deadline() -> None:
 
     assert result.extracted.channel == "Instagram"
     assert result.extracted.deadline == "2026-11-26"
-    # O objetivo continua vazio: a §12 só o reconhece depois de divulgar/promover/anunciar/lançar.
-    assert result.extracted.objective is None
+    assert result.extracted.objective == "Teste"
 
 
 @pytest.mark.parametrize(
@@ -262,6 +261,42 @@ def test_objective_from_verb() -> None:
     assert _interpret("Arte para lançar a linha Tigre hoje.").extracted.objective == (
         "Lançar a linha Tigre"
     )
+
+
+@pytest.mark.parametrize(
+    ("message", "objective"),
+    [
+        ("objetivo: aumentar as vendas de tintas", "Aumentar as vendas de tintas"),
+        ("Objetivo - reforçar a marca. Prazo sexta", "Reforçar a marca"),
+        ("objetivo teste, sera no instagram", "Teste"),
+        ("O objetivo é aumentar o fluxo na loja amanhã", "Aumentar o fluxo na loja"),
+        ("Arte da Ferjá. Objetivo: atrair lojistas; canal Instagram", "Atrair lojistas"),
+        ("objetivos: gerar leads", "Gerar leads"),
+    ],
+)
+def test_objective_from_label(message: str, objective: str) -> None:
+    """D42: "objetivo: X", "objetivo X" e "o objetivo é X"; o valor vai até a pontuação."""
+    assert _interpret(message).extracted.objective == objective
+
+
+def test_label_wins_over_verb() -> None:
+    """Com o rótulo, o objetivo é o que vem depois dele, mesmo com verbo da §12 no meio."""
+    result = _interpret("objetivo: aumentar vendas e divulgar a marca")
+
+    assert result.extracted.objective == "Aumentar vendas e divulgar a marca"
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "objetivo:",  # rótulo sem valor
+        "objetivo amanhã",  # só a data, que vai para o prazo
+        "qual o objetivo?",
+        "o objetivo é",
+    ],
+)
+def test_label_without_value_is_ignored(message: str) -> None:
+    assert _interpret(message).extracted.objective is None
 
 
 @pytest.mark.parametrize(

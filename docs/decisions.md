@@ -389,4 +389,12 @@ Quando uma decisão mudar, registre a nova entrada com data e indique qual ela s
 - **A mudança.** Canal e formato procuram primeiro a palavra exata, como antes. Só quando ela não aparece, aceitam uma palavra a distância 1, contando uma letra a mais, a menos, trocada ou duas vizinhas invertidas ("instragram", "whatsap", "carrosel", "storeis"). Continua valendo a ordem das listas.
 - **Limite.** A aproximação só vale para palavras-chave com 6 letras ou mais: Instagram, WhatsApp, Facebook, LinkedIn, Stories e Carrossel. Assim "gmail", "sitio" e "reais" não viram E-mail, Site ou Reels. Os valores ficam em `llm/fake_client.py` (`TYPO_MIN_LENGTH`, `TYPO_MAX_DISTANCE`), junto das palavras-chave (D26).
 - **Origem.** Um canal aproximado não aparece literalmente no texto, então fica com origem `llm` (IA), e não `message` (D07).
-- **Fora desta mudança.** O objetivo do teste manual continua vazio. Marcas e fornecedores continuam exigindo o nome exato, sem diferenciar acento nem caixa.
+- **Fora desta mudança.** Marcas e fornecedores continuam exigindo o nome exato, sem diferenciar acento nem caixa (confirmado pela autora em 2026-11-25). O objetivo do teste manual passou a ser reconhecido pela D42.
+
+**D42 · FakeLLMClient reconhece o objetivo pelo rótulo** (2026-11-25, pedido da autora; complementa a §12 e a D26).
+- **Formas aceitas.** "objetivo: X", "objetivo - X", "objetivo X" e "o objetivo é X". Vale também no plural ("objetivos:") e sem diferenciar caixa. Depois do rótulo, os conectores "é", "e", "eh", "seria" e "será" são descartados.
+- **Até onde vai o valor.** Até a primeira vírgula, ponto, ponto e vírgula, exclamação, interrogação ou quebra de linha. Uma expressão de prazo no fim ("amanhã", "sexta", "26/11"…) é cortada, como já acontecia no objetivo por verbo, para não misturar objetivo e prazo. A primeira letra vira maiúscula.
+- **O rótulo vence o verbo.** Com rótulo, o objetivo é o que vem depois dele, inteiro: em "objetivo: aumentar vendas e divulgar a marca", o valor não é só "divulgar a marca". Sem rótulo, vale o verbo da §12 (divulgar/promover/anunciar/lançar), como antes.
+- **Rótulo sem valor é ignorado.** "objetivo:", "qual o objetivo?", "o objetivo é" e "objetivo amanhã" (só a data, que vai para o prazo) não preenchem o objetivo.
+- **Origem.** O valor sai do próprio texto do solicitante, então fica com origem `message` (D07).
+- **Teste manual da autora.** "objetivo teste, sera no instragram e preciso pra amanha 26/11" agora preenche objetivo "Teste", canal Instagram (D41) e prazo 26/11.

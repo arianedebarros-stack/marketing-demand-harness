@@ -689,3 +689,14 @@ def test_channel_with_typo_is_registered_as_inferred() -> None:
     assert result.demand.channel == "Instagram"
     assert result.demand.field_origin["channel"] is FieldOrigin.LLM
     assert "guardrail_discard" not in _actions(result.events)
+
+
+def test_objective_from_label_is_registered_from_message() -> None:
+    """D42 + D07: "objetivo: X" preenche o objetivo com origem ``message`` (literal no texto)."""
+    result = _conversation(
+        "Preciso de uma arte da Construjá para amanhã.", "objetivo: aumentar as vendas de tintas"
+    )
+
+    assert result.demand.objective == "Aumentar as vendas de tintas"
+    assert result.demand.field_origin["objective"] is FieldOrigin.MESSAGE
+    assert "objective" not in {f for q in result.questions for f in q.fields}
